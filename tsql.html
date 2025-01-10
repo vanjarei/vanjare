@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T-SQL Commands and Examples</title>
+    <title>All SQL Commands in MS SQL Server</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,17 +34,31 @@
             margin-bottom: 30px;
         }
         .command {
-            color: #FFFFFF;
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
 
-    <h1>T-SQL Commands and Examples</h1>
+    <h1>All SQL Commands in MS SQL Server</h1>
 
     <!-- Data Definition Language (DDL) -->
     <div class="section">
         <h2>Data Definition Language (DDL)</h2>
+        <h3>CREATE DATABASE</h3>
+        <pre><code class="command">
+CREATE DATABASE MyDatabase;
+        </code></pre>
+
+        <h3>ALTER DATABASE</h3>
+        <pre><code class="command">
+ALTER DATABASE MyDatabase SET READ_ONLY;
+        </code></pre>
+
+        <h3>DROP DATABASE</h3>
+        <pre><code class="command">
+DROP DATABASE MyDatabase;
+        </code></pre>
 
         <h3>CREATE TABLE</h3>
         <pre><code class="command">
@@ -52,14 +66,13 @@ CREATE TABLE Employees (
     EmployeeID INT PRIMARY KEY,
     FirstName NVARCHAR(50),
     LastName NVARCHAR(50),
-    HireDate DATE
+    Email NVARCHAR(100)
 );
         </code></pre>
 
         <h3>ALTER TABLE</h3>
         <pre><code class="command">
-ALTER TABLE Employees
-ADD Email NVARCHAR(100);
+ALTER TABLE Employees ADD HireDate DATE;
         </code></pre>
 
         <h3>DROP TABLE</h3>
@@ -74,13 +87,13 @@ TRUNCATE TABLE Employees;
 
         <h3>CREATE VIEW</h3>
         <pre><code class="command">
-CREATE VIEW vw_EmployeeNames AS
+CREATE VIEW vw_Employees AS
 SELECT FirstName, LastName FROM Employees;
         </code></pre>
 
         <h3>DROP VIEW</h3>
         <pre><code class="command">
-DROP VIEW vw_EmployeeNames;
+DROP VIEW vw_Employees;
         </code></pre>
     </div>
 
@@ -95,15 +108,13 @@ SELECT FirstName, LastName FROM Employees WHERE HireDate > '2023-01-01';
 
         <h3>INSERT</h3>
         <pre><code class="command">
-INSERT INTO Employees (EmployeeID, FirstName, LastName, HireDate)
-VALUES (1, 'John', 'Doe', '2024-01-10');
+INSERT INTO Employees (EmployeeID, FirstName, LastName, Email, HireDate)
+VALUES (1, 'John', 'Doe', 'john.doe@example.com', '2024-01-10');
         </code></pre>
 
         <h3>UPDATE</h3>
         <pre><code class="command">
-UPDATE Employees
-SET Email = 'john.doe@example.com'
-WHERE EmployeeID = 1;
+UPDATE Employees SET Email = 'updated.email@example.com' WHERE EmployeeID = 1;
         </code></pre>
 
         <h3>DELETE</h3>
@@ -114,13 +125,13 @@ DELETE FROM Employees WHERE EmployeeID = 1;
         <h3>MERGE</h3>
         <pre><code class="command">
 MERGE INTO Employees AS Target
-USING (SELECT 1 AS EmployeeID, 'Jane' AS FirstName, 'Smith' AS LastName, '2024-01-10' AS HireDate) AS Source
+USING (SELECT 1 AS EmployeeID, 'Jane' AS FirstName, 'Smith' AS LastName) AS Source
 ON Target.EmployeeID = Source.EmployeeID
 WHEN MATCHED THEN
     UPDATE SET FirstName = Source.FirstName, LastName = Source.LastName
 WHEN NOT MATCHED THEN
-    INSERT (EmployeeID, FirstName, LastName, HireDate)
-    VALUES (Source.EmployeeID, Source.FirstName, Source.LastName, Source.HireDate);
+    INSERT (EmployeeID, FirstName, LastName)
+    VALUES (Source.EmployeeID, Source.FirstName, Source.LastName);
         </code></pre>
     </div>
 
@@ -128,28 +139,28 @@ WHEN NOT MATCHED THEN
     <div class="section">
         <h2>Transaction Control Language (TCL)</h2>
 
-        <h3>BEGIN TRANSACTION / COMMIT / ROLLBACK</h3>
+        <h3>BEGIN TRANSACTION</h3>
         <pre><code class="command">
 BEGIN TRANSACTION;
+INSERT INTO Employees (EmployeeID, FirstName, LastName) VALUES (2, 'Alice', 'Johnson');
+COMMIT;
+        </code></pre>
 
-INSERT INTO Employees (EmployeeID, FirstName, LastName, HireDate)
-VALUES (2, 'Alice', 'Johnson', '2024-01-10');
-
-ROLLBACK; -- Undo the insert.
+        <h3>ROLLBACK</h3>
+        <pre><code class="command">
+BEGIN TRANSACTION;
+INSERT INTO Employees (EmployeeID, FirstName, LastName) VALUES (3, 'Bob', 'Brown');
+ROLLBACK;
         </code></pre>
 
         <h3>SAVE TRANSACTION</h3>
         <pre><code class="command">
 BEGIN TRANSACTION;
-INSERT INTO Employees (EmployeeID, FirstName, LastName, HireDate)
-VALUES (3, 'Bob', 'Brown', '2024-01-10');
-
+INSERT INTO Employees (EmployeeID, FirstName, LastName) VALUES (4, 'Charlie', 'Clark');
 SAVE TRANSACTION SavePoint1;
-
-UPDATE Employees SET LastName = 'Green' WHERE EmployeeID = 3;
-
-ROLLBACK TRANSACTION SavePoint1; -- Reverts to save point.
-COMMIT; -- Finalizes changes up to the save point.
+DELETE FROM Employees WHERE EmployeeID = 4;
+ROLLBACK TRANSACTION SavePoint1; -- Reverts to the save point
+COMMIT;
         </code></pre>
     </div>
 
@@ -159,12 +170,12 @@ COMMIT; -- Finalizes changes up to the save point.
 
         <h3>GRANT</h3>
         <pre><code class="command">
-GRANT SELECT, INSERT ON Employees TO User1;
+GRANT SELECT ON Employees TO User1;
         </code></pre>
 
         <h3>REVOKE</h3>
         <pre><code class="command">
-REVOKE INSERT ON Employees FROM User1;
+REVOKE SELECT ON Employees FROM User1;
         </code></pre>
 
         <h3>DENY</h3>
@@ -182,29 +193,29 @@ DENY DELETE ON Employees TO User1;
 USE MyDatabase;
         </code></pre>
 
-        <h3>EXECUTE (EXEC)</h3>
+        <h3>EXEC</h3>
         <pre><code class="command">
 EXEC sp_help 'Employees';
         </code></pre>
 
         <h3>SET</h3>
         <pre><code class="command">
-SET NOCOUNT ON; -- Stops the message that displays the number of rows affected.
+SET NOCOUNT ON;
         </code></pre>
 
         <h3>PRINT</h3>
         <pre><code class="command">
-PRINT 'Hello, T-SQL!';
+PRINT 'Operation completed successfully.';
         </code></pre>
 
         <h3>WAITFOR</h3>
         <pre><code class="command">
-WAITFOR DELAY '00:00:10'; -- Waits for 10 seconds.
+WAITFOR DELAY '00:00:10'; -- Waits for 10 seconds
         </code></pre>
 
         <h3>RAISERROR</h3>
         <pre><code class="command">
-RAISERROR ('An error occurred.', 16, 1);
+RAISERROR ('This is an error message.', 16, 1);
         </code></pre>
     </div>
 
@@ -214,14 +225,12 @@ RAISERROR ('An error occurred.', 16, 1);
 
         <h3>BACKUP DATABASE</h3>
         <pre><code class="command">
-BACKUP DATABASE MyDatabase
-TO DISK = 'C:\Backups\MyDatabase.bak';
+BACKUP DATABASE MyDatabase TO DISK = 'C:\Backups\MyDatabase.bak';
         </code></pre>
 
         <h3>RESTORE DATABASE</h3>
         <pre><code class="command">
-RESTORE DATABASE MyDatabase
-FROM DISK = 'C:\Backups\MyDatabase.bak';
+RESTORE DATABASE MyDatabase FROM DISK = 'C:\Backups\MyDatabase.bak';
         </code></pre>
     </div>
 
@@ -229,10 +238,10 @@ FROM DISK = 'C:\Backups\MyDatabase.bak';
     <div class="section">
         <h2>Advanced Programming Constructs</h2>
 
-        <h3>DECLARE and SET</h3>
+        <h3>DECLARE</h3>
         <pre><code class="command">
 DECLARE @Counter INT;
-SET @Counter = 10;
+SET @Counter = 1;
 PRINT @Counter;
         </code></pre>
 
@@ -257,10 +266,10 @@ END;
         <h3>TRY...CATCH</h3>
         <pre><code class="command">
 BEGIN TRY
-    SELECT 1 / 0; -- This will cause an error.
+    SELECT 1 / 0; -- This will cause an error
 END TRY
 BEGIN CATCH
-    PRINT 'Error occurred: ' + ERROR_MESSAGE();
+    PRINT ERROR_MESSAGE();
 END CATCH;
         </code></pre>
     </div>

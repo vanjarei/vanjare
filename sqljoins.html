@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Joins Explained</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .command {
+            color: #27ae60;
+        }
+        .summary {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+        }
+        .summary h2 {
+            color: #2980b9;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>SQL Joins Explained</h1>
+
+    <!-- INNER JOIN -->
+    <div class="section">
+        <h2>1. INNER JOIN</h2>
+        <p><strong>Description:</strong> Returns only the matching rows from both tables where the condition is true.</p>
+        <pre><code class="command">
+SELECT columns
+FROM Table1
+INNER JOIN Table2
+ON Table1.common_column = Table2.common_column;
+        </code></pre>
+        <p><strong>Example:</strong></p>
+        <pre><code class="command">
+SELECT Employees.EmployeeID, Employees.FirstName, Departments.DepartmentName
+FROM Employees
+INNER JOIN Departments
+ON Employees.DepartmentID = Departments.DepartmentID;
+        </code></pre>
+    </div>
+
+    <!-- LEFT JOIN -->
+    <div class="section">
+        <h2>2. LEFT JOIN (or LEFT OUTER JOIN)</h2>
+        <p><strong>Description:</strong> Returns all rows from the left table and the matching rows from the right table. Non-matching rows in the right table are filled with <code>NULL</code>.</p>
+        <pre><code class="command">
+SELECT columns
+FROM Table1
+LEFT JOIN Table2
+ON Table1.common_column = Table2.common_column;
+        </code></pre>
+        <p><strong>Example:</strong></p>
+        <pre><code class="command">
+SELECT Employees.EmployeeID, Employees.FirstName, Departments.DepartmentName
+FROM Employees
+LEFT JOIN Departments
+ON Employees.DepartmentID = Departments.DepartmentID;
+        </code></pre>
+    </div>
+
+    <!-- RIGHT JOIN -->
+    <div class="section">
+        <h2>3. RIGHT JOIN (or RIGHT OUTER JOIN)</h2>
+        <p><strong>Description:</strong> Returns all rows from the right table and the matching rows from the left table. Non-matching rows in the left table are filled with <code>NULL</code>.</p>
+        <pre><code class="command">
+SELECT columns
+FROM Table1
+RIGHT JOIN Table2
+ON Table1.common_column = Table2.common_column;
+        </code></pre>
+        <p><strong>Example:</strong></p>
+        <pre><code class="command">
+SELECT Employees.EmployeeID, Employees.FirstName, Departments.DepartmentName
+FROM Employees
+RIGHT JOIN Departments
+ON Employees.DepartmentID = Departments.DepartmentID;
+        </code></pre>
+    </div>
+
+    <!-- FULL JOIN -->
+    <div class="section">
+        <h2>4. FULL JOIN (or FULL OUTER JOIN)</h2>
+        <p><strong>Description:</strong> Returns all rows when there is a match in either the left or right table. Non-matching rows are filled with <code>NULL</code>.</p>
+        <pre><code class="command">
+SELECT columns
+FROM Table1
+FULL JOIN Table2
+ON Table1.common_column = Table2.common_column;
+        </code></pre>
+        <p><strong>Example:</strong></p>
+        <pre><code class="command">
+SELECT Employees.EmployeeID, Employees.FirstName, Departments.DepartmentName
+FROM Employees
+FULL JOIN Departments
+ON Employees.DepartmentID = Departments.DepartmentID;
+        </code></pre>
+    </div>
+
+    <!-- CROSS JOIN -->
+    <div class="section">
+        <h2>5. CROSS JOIN</h2>
+        <p><strong>Description:</strong> Returns the Cartesian product of both tables, i.e., every row in the first table is combined with every row in the second table.</p>
+        <pre><code class="command">
+SELECT columns
+FROM Table1
+CROSS JOIN Table2;
+        </code></pre>
+        <p><strong>Example:</strong></p>
+        <pre><code class="command">
+SELECT Employees.FirstName, Departments.DepartmentName
+FROM Employees
+CROSS JOIN Departments;
+        </code></pre>
+    </div>
+
+    <!-- SELF JOIN -->
+    <div class="section">
+        <h2>6. SELF JOIN</h2>
+        <p><strong>Description:</strong> Joins a table to itself. Useful when comparing rows within the same table.</p>
+        <pre><code class="command">
+SELECT A.columns, B.columns
+FROM Table A
+INNER JOIN Table B
+ON A.common_column = B.common_column;
+        </code></pre>
+        <p><strong>Example:</strong></p>
+        <pre><code class="command">
+SELECT E1.EmployeeID AS ManagerID, E1.FirstName AS ManagerName, 
+       E2.EmployeeID AS EmployeeID, E2.FirstName AS EmployeeName
+FROM Employees E1
+INNER JOIN Employees E2
+ON E1.EmployeeID = E2.ManagerID;
+        </code></pre>
+    </div>
+
+    <!-- APPLY -->
+    <div class="section">
+        <h2>7. APPLY (CROSS APPLY and OUTER APPLY)</h2>
+        <p><strong>Description:</strong> Joins a table with a table-valued function or derived table.</p>
+        <ul>
+            <li><strong>CROSS APPLY:</strong> Works like an <code>INNER JOIN</code> (returns only matching rows).</li>
+            <li><strong>OUTER APPLY:</strong> Works like a <code>LEFT JOIN</code> (returns all rows from the left table and matches from the right).</li>
+        </ul>
+        <p><strong>Example (CROSS APPLY):</strong></p>
+        <pre><code class="command">
+SELECT e.EmployeeID, e.FirstName, d.*
+FROM Employees e
+CROSS APPLY (SELECT * FROM Departments WHERE Departments.DepartmentID = e.DepartmentID) d;
+        </code></pre>
+        <p><strong>Example (OUTER APPLY):</strong></p>
+        <pre><code class="command">
+SELECT e.EmployeeID, e.FirstName, d.*
+FROM Employees e
+OUTER APPLY (SELECT * FROM Departments WHERE Departments.DepartmentID = e.DepartmentID) d;
+        </code></pre>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary">
+        <h2>Summary of SQL Joins</h2>
+        <ul>
+            <li><strong>INNER JOIN:</strong> Returns only the matching rows from both tables.</li>
+            <li><strong>LEFT JOIN:</strong> Returns all rows from the left table and matching rows from the right table (non-matching rows are filled with NULL).</li>
+            <li><strong>RIGHT JOIN:</strong> Returns all rows from the right table and matching rows from the left table (non-matching rows are filled with NULL).</li>
+            <li><strong>FULL JOIN:</strong> Returns all rows when there is a match in either the left or right table (non-matching rows are filled with NULL).</li>
+            <li><strong>CROSS JOIN:</strong> Returns the Cartesian product of both tables, combining every row from the first table with every row from the second table.</li>
+            <li><strong>SELF JOIN:</strong> Joins a table to itself, useful for comparing rows within the same table.</li>
+            <li><strong>APPLY (CROSS APPLY and OUTER APPLY):</strong> Joins a table with a table-valued function or derived table. CROSS APPLY returns matching rows, OUTER APPLY returns all rows from the left table and matching rows from the right table.</li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Vanjare.com. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

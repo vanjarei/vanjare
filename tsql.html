@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T-SQL Commands and Examples</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        pre {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .command {
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>T-SQL Commands and Examples</h1>
+
+    <!-- Data Definition Language (DDL) -->
+    <div class="section">
+        <h2>Data Definition Language (DDL)</h2>
+
+        <h3>CREATE TABLE</h3>
+        <pre><code class="command">
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY,
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    HireDate DATE
+);
+        </code></pre>
+
+        <h3>ALTER TABLE</h3>
+        <pre><code class="command">
+ALTER TABLE Employees
+ADD Email NVARCHAR(100);
+        </code></pre>
+
+        <h3>DROP TABLE</h3>
+        <pre><code class="command">
+DROP TABLE Employees;
+        </code></pre>
+
+        <h3>TRUNCATE TABLE</h3>
+        <pre><code class="command">
+TRUNCATE TABLE Employees;
+        </code></pre>
+
+        <h3>CREATE VIEW</h3>
+        <pre><code class="command">
+CREATE VIEW vw_EmployeeNames AS
+SELECT FirstName, LastName FROM Employees;
+        </code></pre>
+
+        <h3>DROP VIEW</h3>
+        <pre><code class="command">
+DROP VIEW vw_EmployeeNames;
+        </code></pre>
+    </div>
+
+    <!-- Data Manipulation Language (DML) -->
+    <div class="section">
+        <h2>Data Manipulation Language (DML)</h2>
+
+        <h3>SELECT</h3>
+        <pre><code class="command">
+SELECT FirstName, LastName FROM Employees WHERE HireDate > '2023-01-01';
+        </code></pre>
+
+        <h3>INSERT</h3>
+        <pre><code class="command">
+INSERT INTO Employees (EmployeeID, FirstName, LastName, HireDate)
+VALUES (1, 'John', 'Doe', '2024-01-10');
+        </code></pre>
+
+        <h3>UPDATE</h3>
+        <pre><code class="command">
+UPDATE Employees
+SET Email = 'john.doe@example.com'
+WHERE EmployeeID = 1;
+        </code></pre>
+
+        <h3>DELETE</h3>
+        <pre><code class="command">
+DELETE FROM Employees WHERE EmployeeID = 1;
+        </code></pre>
+
+        <h3>MERGE</h3>
+        <pre><code class="command">
+MERGE INTO Employees AS Target
+USING (SELECT 1 AS EmployeeID, 'Jane' AS FirstName, 'Smith' AS LastName, '2024-01-10' AS HireDate) AS Source
+ON Target.EmployeeID = Source.EmployeeID
+WHEN MATCHED THEN
+    UPDATE SET FirstName = Source.FirstName, LastName = Source.LastName
+WHEN NOT MATCHED THEN
+    INSERT (EmployeeID, FirstName, LastName, HireDate)
+    VALUES (Source.EmployeeID, Source.FirstName, Source.LastName, Source.HireDate);
+        </code></pre>
+    </div>
+
+    <!-- Transaction Control Language (TCL) -->
+    <div class="section">
+        <h2>Transaction Control Language (TCL)</h2>
+
+        <h3>BEGIN TRANSACTION / COMMIT / ROLLBACK</h3>
+        <pre><code class="command">
+BEGIN TRANSACTION;
+
+INSERT INTO Employees (EmployeeID, FirstName, LastName, HireDate)
+VALUES (2, 'Alice', 'Johnson', '2024-01-10');
+
+ROLLBACK; -- Undo the insert.
+        </code></pre>
+
+        <h3>SAVE TRANSACTION</h3>
+        <pre><code class="command">
+BEGIN TRANSACTION;
+INSERT INTO Employees (EmployeeID, FirstName, LastName, HireDate)
+VALUES (3, 'Bob', 'Brown', '2024-01-10');
+
+SAVE TRANSACTION SavePoint1;
+
+UPDATE Employees SET LastName = 'Green' WHERE EmployeeID = 3;
+
+ROLLBACK TRANSACTION SavePoint1; -- Reverts to save point.
+COMMIT; -- Finalizes changes up to the save point.
+        </code></pre>
+    </div>
+
+    <!-- Data Control Language (DCL) -->
+    <div class="section">
+        <h2>Data Control Language (DCL)</h2>
+
+        <h3>GRANT</h3>
+        <pre><code class="command">
+GRANT SELECT, INSERT ON Employees TO User1;
+        </code></pre>
+
+        <h3>REVOKE</h3>
+        <pre><code class="command">
+REVOKE INSERT ON Employees FROM User1;
+        </code></pre>
+
+        <h3>DENY</h3>
+        <pre><code class="command">
+DENY DELETE ON Employees TO User1;
+        </code></pre>
+    </div>
+
+    <!-- Utility Commands -->
+    <div class="section">
+        <h2>Utility Commands</h2>
+
+        <h3>USE</h3>
+        <pre><code class="command">
+USE MyDatabase;
+        </code></pre>
+
+        <h3>EXECUTE (EXEC)</h3>
+        <pre><code class="command">
+EXEC sp_help 'Employees';
+        </code></pre>
+
+        <h3>SET</h3>
+        <pre><code class="command">
+SET NOCOUNT ON; -- Stops the message that displays the number of rows affected.
+        </code></pre>
+
+        <h3>PRINT</h3>
+        <pre><code class="command">
+PRINT 'Hello, T-SQL!';
+        </code></pre>
+
+        <h3>WAITFOR</h3>
+        <pre><code class="command">
+WAITFOR DELAY '00:00:10'; -- Waits for 10 seconds.
+        </code></pre>
+
+        <h3>RAISERROR</h3>
+        <pre><code class="command">
+RAISERROR ('An error occurred.', 16, 1);
+        </code></pre>
+    </div>
+
+    <!-- Backup and Restore -->
+    <div class="section">
+        <h2>Backup and Restore</h2>
+
+        <h3>BACKUP DATABASE</h3>
+        <pre><code class="command">
+BACKUP DATABASE MyDatabase
+TO DISK = 'C:\Backups\MyDatabase.bak';
+        </code></pre>
+
+        <h3>RESTORE DATABASE</h3>
+        <pre><code class="command">
+RESTORE DATABASE MyDatabase
+FROM DISK = 'C:\Backups\MyDatabase.bak';
+        </code></pre>
+    </div>
+
+    <!-- Advanced Programming Constructs -->
+    <div class="section">
+        <h2>Advanced Programming Constructs</h2>
+
+        <h3>DECLARE and SET</h3>
+        <pre><code class="command">
+DECLARE @Counter INT;
+SET @Counter = 10;
+PRINT @Counter;
+        </code></pre>
+
+        <h3>IF...ELSE</h3>
+        <pre><code class="command">
+IF EXISTS (SELECT 1 FROM Employees WHERE EmployeeID = 1)
+    PRINT 'Employee exists';
+ELSE
+    PRINT 'Employee does not exist';
+        </code></pre>
+
+        <h3>WHILE</h3>
+        <pre><code class="command">
+DECLARE @Count INT = 0;
+WHILE @Count < 5
+BEGIN
+    PRINT @Count;
+    SET @Count = @Count + 1;
+END;
+        </code></pre>
+
+        <h3>TRY...CATCH</h3>
+        <pre><code class="command">
+BEGIN TRY
+    SELECT 1 / 0; -- This will cause an error.
+END TRY
+BEGIN CATCH
+    PRINT 'Error occurred: ' + ERROR_MESSAGE();
+END CATCH;
+        </code></pre>
+    </div>
+</body>
+</html>

@@ -3,215 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Commands in Windows</title>
+    <title>Welcome to CMD Code List</title>
+    <!-- Link to Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2a2a72, #009ffd);
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
         }
         h1 {
-            text-align: center;
-            color: #4CAF50;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
         }
-        h2 {
-            color: #333;
+        p {
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #ffecb3;
+            max-width: 600px;
+            line-height: 1.6;
         }
-        ul {
-            margin-left: 20px;
-        }
-        pre {
-            background-color: #f4f4f4;
-            padding: 10px;
+        .btn-custom {
+            background-color: #ff5722;
+            color: #fff;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
             border-radius: 5px;
-            font-size: 1.1em;
-            overflow-x: auto;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #ff7043;
+        }
+        .btn-custom:active {
+            background-color: #d32f2f;
+        }
+        footer {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            color: #fff;
+        }
+        footer a {
+            color: #ffecb3;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <h1>Network Commands in Windows</h1>
+    <div class="container text-center">
+        <h1>Welcome to the CMD Code List!</h1>
+        <p>Explore a list of useful Command Prompt (CMD) commands to help you troubleshoot, configure, and manage your system with ease. Learn about networking, system diagnostics, and more!</p>
+        
+        <div class="my-4">
+            <a href="#cmd-list" class="btn btn-custom">View CMD Commands</a>
+        </div>
+    </div>
 
-    <h2>1. ping</h2>
-    <p><strong>Purpose:</strong> Tests connectivity between your system and a remote host (IP address or domain).</p>
-    <p><strong>Command:</strong></p>
-    <pre>ping &lt;hostname or IP address&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>ping google.com</pre>
-    <pre>ping 8.8.8.8</pre>
+    <footer>
+        <p>Created by <a href="https://www.vanjare.com" target="_blank">Vanjare Infotech</a></p>
+    </footer>
 
-    <h2>2. tracert</h2>
-    <p><strong>Purpose:</strong> Traces the path packets take from your system to a remote host.</p>
-    <p><strong>Command:</strong></p>
-    <pre>tracert &lt;hostname or IP address&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>tracert google.com</pre>
-
-    <h2>3. ipconfig</h2>
-    <p><strong>Purpose:</strong> Displays current network configuration (IP address, subnet mask, default gateway, etc.).</p>
-    <p><strong>Command:</strong></p>
-    <pre>ipconfig</pre>
-    <p><strong>Example:</strong></p>
-    <pre>ipconfig /all</pre>
-    <pre>ipconfig /release</pre>
-    <pre>ipconfig /renew</pre>
-
-    <h2>4. netstat</h2>
-    <p><strong>Purpose:</strong> Displays active connections, listening ports, and network statistics.</p>
-    <p><strong>Command:</strong></p>
-    <pre>netstat</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netstat -an</pre>
-    <pre>netstat -aon</pre>
-    <pre>netstat -b</pre>
-
-    <h2>5. nslookup</h2>
-    <p><strong>Purpose:</strong> Queries DNS to retrieve IP address or other information for a domain.</p>
-    <p><strong>Command:</strong></p>
-    <pre>nslookup &lt;hostname&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>nslookup google.com</pre>
-
-    <h2>6. route</h2>
-    <p><strong>Purpose:</strong> Displays or modifies the system's routing table.</p>
-    <p><strong>Command:</strong></p>
-    <pre>route print</pre>
-    <p><strong>Example:</strong></p>
-    <pre>route print</pre>
-
-    <h2>7. telnet</h2>
-    <p><strong>Purpose:</strong> Connects to a remote system or service using the Telnet protocol (useful for testing open ports).</p>
-    <p><strong>Command:</strong></p>
-    <pre>telnet &lt;hostname&gt; &lt;port&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>telnet google.com 80</pre>
-
-    <h2>8. netsh</h2>
-    <p><strong>Purpose:</strong> Configures and manages network settings.</p>
-    <p><strong>Command:</strong></p>
-    <pre>netsh interface ip show config</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netsh interface ip show config</pre>
-
-    <h2>9. arp</h2>
-    <p><strong>Purpose:</strong> Displays or modifies the ARP cache (mapping of IP addresses to MAC addresses).</p>
-    <p><strong>Command:</strong></p>
-    <pre>arp -a</pre>
-    <p><strong>Example:</strong></p>
-    <pre>arp -a</pre>
-
-    <h2>10. ipconfig /flushdns</h2>
-    <p><strong>Purpose:</strong> Clears the DNS cache to resolve DNS resolution issues.</p>
-    <p><strong>Command:</strong></p>
-    <pre>ipconfig /flushdns</pre>
-    <p><strong>Example:</strong></p>
-    <pre>ipconfig /flushdns</pre>
-
-    <h2>11. net view</h2>
-    <p><strong>Purpose:</strong> Displays a list of networked computers in a workgroup or domain.</p>
-    <p><strong>Command:</strong></p>
-    <pre>net view</pre>
-    <p><strong>Example:</strong></p>
-    <pre>net view</pre>
-
-    <h2>12. net use</h2>
-    <p><strong>Purpose:</strong> Connects to or disconnects from shared network resources (e.g., mapped network drives).</p>
-    <p><strong>Command:</strong></p>
-    <pre>net use &lt;drive letter&gt;: \\&lt;hostname&gt;\\&lt;shared folder&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>net use z: \\192.168.1.100\sharedfolder</pre>
-
-    <h2>13. systeminfo</h2>
-    <p><strong>Purpose:</strong> Displays detailed information about the system configuration, including network information.</p>
-    <p><strong>Command:</strong></p>
-    <pre>systeminfo</pre>
-    <p><strong>Example:</strong></p>
-    <pre>systeminfo</pre>
-
-    <h2>14. PowerShell: Test-NetConnection</h2>
-    <p><strong>Purpose:</strong> Tests the network connectivity to a remote host, similar to ping but more feature-rich.</p>
-    <p><strong>Command:</strong></p>
-    <pre>Test-NetConnection -ComputerName &lt;hostname or IP&gt; -Port &lt;port&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>Test-NetConnection -ComputerName google.com -Port 80</pre>
-
-    <h2>15. netstat -b</h2>
-    <p><strong>Purpose:</strong> Displays the executable associated with each active connection (requires admin rights).</p>
-    <p><strong>Command:</strong></p>
-    <pre>netstat -b</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netstat -b</pre>
-
-    <h2>16. net start</h2>
-    <p><strong>Purpose:</strong> Lists all running network services.</p>
-    <p><strong>Command:</strong></p>
-    <pre>net start</pre>
-    <p><strong>Example:</strong></p>
-    <pre>net start</pre>
-
-    <h2>17. wmic nicconfig get</h2>
-    <p><strong>Purpose:</strong> Retrieves detailed information about network adapter settings.</p>
-    <p><strong>Command:</strong></p>
-    <pre>wmic nicconfig get</pre>
-    <p><strong>Example:</strong></p>
-    <pre>wmic nicconfig get Description, IPAddress, DefaultIPGateway</pre>
-
-    <h2>18. netsh wlan show interfaces</h2>
-    <p><strong>Purpose:</strong> Displays detailed information about the Wi-Fi connection (signal strength, IP address, etc.).</p>
-    <p><strong>Command:</strong></p>
-    <pre>netsh wlan show interfaces</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netsh wlan show interfaces</pre>
-
-    <h2>19. netsh advfirewall</h2>
-    <p><strong>Purpose:</strong> Configures Windows Firewall settings.</p>
-    <p><strong>Command:</strong></p>
-    <pre>netsh advfirewall show allprofiles</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netsh advfirewall show allprofiles</pre>
-
-    <h2>20. netsh interface ipv4 set address</h2>
-    <p><strong>Purpose:</strong> Configures IPv4 settings, including IP address, subnet mask, and gateway.</p>
-    <p><strong>Command:</strong></p>
-    <pre>netsh interface ipv4 set address name="&lt;InterfaceName&gt;" static &lt;IP&gt; &lt;SubnetMask&gt; &lt;Gateway&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netsh interface ipv4 set address name="Ethernet" static 192.168.1.100 255.255.255.0 192.168.1.1</pre>
-
-    <h2>21. netstat -an</h2>
-    <p><strong>Purpose:</strong> Displays all active network connections and their respective statuses.</p>
-    <p><strong>Command:</strong></p>
-    <pre>netstat -an</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netstat -an</pre>
-
-    <h2>22. nmap (third-party tool)</h2>
-    <p><strong>Purpose:</strong> A network exploration tool for scanning open ports and discovering hosts (not natively available in Windows).</p>
-    <p><strong>Command:</strong></p>
-    <pre>nmap &lt;IP address or hostname&gt;</pre>
-    <p><strong>Example:</strong></p>
-    <pre>nmap 192.168.1.1</pre>
-
-    <h2>23. netsh interface set interface</h2>
-    <p><strong>Purpose:</strong> Enables or disables a network interface.</p>
-    <p><strong>Command:</strong></p>
-    <pre>netsh interface set interface "&lt;InterfaceName&gt;" admin=disable</pre>
-    <p><strong>Example:</strong></p>
-    <pre>netsh interface set interface "Ethernet" admin=disable</pre>
-
-    <h2>24. hostname</h2>
-    <p><strong>Purpose:</strong> Displays or sets the hostname (computer name).</p>
-    <p><strong>Command:</strong></p>
-    <pre>hostname</pre>
-    <p><strong>Example:</strong></p>
-    <pre>hostname</pre>
-
-    <h2>25. Get-NetAdapter (PowerShell)</h2>
-    <p><strong>Purpose:</strong> Retrieves information about network adapters.</p>
-    <p><strong>Command:</strong></p>
-    <pre>Get-NetAdapter</pre>
-    <p><strong>Example:</strong></p>
-    <pre>Get-NetAdapter</pre>
+    <!-- Link to Bootstrap 5 JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
 </body>
 </html>

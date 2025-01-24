@@ -1,6 +1,16 @@
-# Full System Health Check Script with Health Rating in Filename
-# Author: Mohan Vanjare
-# Description: Checks system health, calculates a health rating, and saves the report with a detailed filename.
+# Full System Health Check Script with RAM Speed (MHz) Included
+# Author: GPT-Generated
+# Description: Checks system health, calculates a health rating, and saves the report with system type and RAM speed.
+
+# Function to detect if the system is a desktop or laptop
+function Get-SystemType {
+    $chassis = Get-CimInstance -ClassName Win32_SystemEnclosure | Select-Object -ExpandProperty ChassisTypes
+    if ($chassis -contains 10 -or $chassis -contains 14) {
+        return "Laptop"
+    } else {
+        return "Desktop"
+    }
+}
 
 # Function to get enhanced system information
 function Get-SystemInfo {
@@ -12,16 +22,13 @@ function Get-SystemInfo {
 
     # Calculate total RAM in GB
     $totalRAM = [math]::round(($memory.Capacity | Measure-Object -Sum).Sum / 1GB, 2)
-    $ramType = Switch ($memory.MemoryType) {
-        20 { "DDR" }
-        21 { "DDR2" }
-        24 { "DDR3" }
-        26 { "DDR4" }
-        Default { "Unknown" }
-    }
+
+    # Collect RAM speed for all modules
+    $ramSpeeds = ($memory | Select-Object -ExpandProperty Speed) -join " MHz, " + " MHz"
 
     [PSCustomObject]@{
         ComputerName    = $env:COMPUTERNAME
+        SystemType      = Get-SystemType
         OS              = $os.Caption
         OSVersion       = "$($os.Version) ($($os.BuildNumber))"
         Manufacturer    = $os.Manufacturer
@@ -29,7 +36,7 @@ function Get-SystemInfo {
         Processor       = $cpu.Name
         CPUCores        = $cpu.NumberOfCores
         TotalRAMGB      = "$totalRAM GB"
-        RAMType         = $ramType
+        RAMSpeedMHz     = $ramSpeeds
         Architecture    = $os.OSArchitecture
         BootTime        = $os.LastBootUpTime
         NumberOfDisks   = ($disks | Measure-Object).Count
@@ -115,8 +122,7 @@ function Calculate-HealthScore {
     $cpuUsage = (Get-CPUUsage).LoadPercentage | Measure-Object -Average | Select-Object -ExpandProperty Average
     $memoryUsage = (Get-MemoryUsage).UsagePercentage
     $diskUsage = (Get-DiskSpace).UsagePercentage | Measure-Object -Average | Select-Object -ExpandProperty Average
-    $battery = Get-BatteryHealth
-    $batteryCharge = $battery.EstimatedChargeRemaining
+    $systemType = Get-SystemType
 
     # Initialize health score
     $healthScore = 100
@@ -133,9 +139,13 @@ function Calculate-HealthScore {
     if ($diskUsage -gt 80) { $healthScore -= 10 }
     if ($diskUsage -gt 90) { $healthScore -= 10 }
 
-    # Battery Charge Penalty
-    if ($batteryCharge -lt 20) { $healthScore -= 10 }
-    if ($batteryCharge -lt 10) { $healthScore -= 10 }
+    # Battery Health Penalty (only for laptops)
+    if ($systemType -eq "Laptop") {
+        $battery = Get-BatteryHealth
+        $batteryCharge = $battery.EstimatedChargeRemaining
+        if ($batteryCharge -lt 20) { $healthScore -= 10 }
+        if ($batteryCharge -lt 10) { $healthScore -= 10 }
+    }
 
     # Return health score
     return $healthScore
@@ -182,12 +192,19 @@ function Run-SystemHealthCheck {
     $report += "======== System Health Check ========"
 
     # System Information
+    $systemInfo = Get-SystemInfo
+    $systemType = $systemInfo.SystemType
     $report += "`n[System Information]"
-    $report += (Get-SystemInfo | Format-List | Out-String)
+    $report += ($systemInfo | Format-List | Out-String)
 
-    # Battery Health
-    $report += "`n[Battery Health]"
-    $report += (Get-BatteryHealth | Format-List | Out-String)
+    # Battery Health (only include for laptops)
+    if ($systemType -eq "Laptop") {
+        $report += "`n[Battery Health]"
+        $report += (Get-BatteryHealth | Format-List | Out-String)
+    } else {
+        $report += "`n[Battery Health]"
+        $report += "Battery health is not applicable for desktop systems."
+    }
 
     # CPU Usage
     $report += "`n[CPU Usage]"

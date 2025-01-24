@@ -130,7 +130,20 @@ function Check-WifiConnection {
 
 function Test-InternetSpeed {
     Write-Host "Testing internet speed..."
-    Invoke-WebRequest -Uri "https://fast.com" -UseBasicParsing
+
+    try {
+        # Invoke web request to get the speed data from fast.com
+        $response = Invoke-WebRequest -Uri "https://www.fast.com" -Method Get -UseBasicParsing
+
+        # Parse the JSON response to extract the speed
+        $jsonResponse = $response.Content | ConvertFrom-Json
+
+        # Extract and display the download speed in Mbps
+        $downloadSpeed = $jsonResponse.download
+        Write-Host "Download Speed: $($downloadSpeed) Mbps"
+    } catch {
+        Write-Host "Error: Unable to test internet speed. Please check your internet connection or try again later."
+    }
 }
 
 # System Management
@@ -261,4 +274,3 @@ do {
         Read-Host "Press Enter to continue..."
     }
 } while ($choice -ne 27)
-

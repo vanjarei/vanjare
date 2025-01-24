@@ -1,6 +1,6 @@
-# Full System Health Check Script with DeviceName_IP Naming for Report
+# Full System Health Check Script with Health Rating
 # Author: GPT-Generated
-# Description: Checks system health, including battery health, and saves a detailed report with DeviceName_IP.txt format.
+# Description: Checks system health, calculates a health rating, and saves the report.
 
 # Function to get enhanced system information
 function Get-SystemInfo {
@@ -56,23 +56,23 @@ function Get-BatteryHealth {
                     10 { "Partially Charged" }
                     Default { "Unknown" }
                 }
-                EstimatedChargeRemaining = "$($battery.EstimatedChargeRemaining) %"
-                EstimatedRunTimeMinutes  = "$($battery.EstimatedRunTime) minutes"
+                EstimatedChargeRemaining = $battery.EstimatedChargeRemaining
+                EstimatedRunTimeMinutes  = $battery.EstimatedRunTime
                 DesignVoltage            = "$($battery.DesignVoltage / 1000) V"
             }
         } else {
             [PSCustomObject]@{
                 BatteryStatus         = "No battery detected"
-                EstimatedChargeRemaining = "N/A"
-                EstimatedRunTimeMinutes  = "N/A"
+                EstimatedChargeRemaining = 0
+                EstimatedRunTimeMinutes  = 0
                 DesignVoltage            = "N/A"
             }
         }
     } catch {
         [PSCustomObject]@{
             BatteryStatus         = "Error retrieving battery information"
-            EstimatedChargeRemaining = "N/A"
-            EstimatedRunTimeMinutes  = "N/A"
+            EstimatedChargeRemaining = 0
+            EstimatedRunTimeMinutes  = 0
             DesignVoltage            = "N/A"
         }
     }
@@ -110,24 +110,44 @@ function Test-Network {
     Test-Connection -ComputerName google.com -Count 1 -Quiet
 }
 
-# Function to check for recent critical errors in event logs
-function Get-EventLogErrors {
-    Get-EventLog -LogName System -EntryType Error -Newest 10
+# Function to calculate system health score
+function Calculate-HealthScore {
+    $cpuUsage = (Get-CPUUsage).LoadPercentage | Measure-Object -Average | Select-Object -ExpandProperty Average
+    $memoryUsage = (Get-MemoryUsage).UsagePercentage
+    $diskUsage = (Get-DiskSpace).UsagePercentage | Measure-Object -Average | Select-Object -ExpandProperty Average
+    $battery = Get-BatteryHealth
+    $batteryCharge = $battery.EstimatedChargeRemaining
+
+    # Initialize health score
+    $healthScore = 100
+
+    # CPU Usage Penalty
+    if ($cpuUsage -gt 80) { $healthScore -= 10 }
+    if ($cpuUsage -gt 90) { $healthScore -= 10 }
+
+    # Memory Usage Penalty
+    if ($memoryUsage -gt 80) { $healthScore -= 10 }
+    if ($memoryUsage -gt 90) { $healthScore -= 10 }
+
+    # Disk Space Usage Penalty
+    if ($diskUsage -gt 80) { $healthScore -= 10 }
+    if ($diskUsage -gt 90) { $healthScore -= 10 }
+
+    # Battery Charge Penalty
+    if ($batteryCharge -lt 20) { $healthScore -= 10 }
+    if ($batteryCharge -lt 10) { $healthScore -= 10 }
+
+    # Return health score
+    return $healthScore
 }
 
-# Function to get running processes
-function Get-RunningProcesses {
-    Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name, CPU, ID
-}
-
-# Function to get the system's IPv4 address
-function Get-IPv4Address {
-    $ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet", "Wi-Fi" -ErrorAction SilentlyContinue
-    if ($ip) {
-        return $ip.IPAddress
-    } else {
-        return "UnknownIP"
-    }
+# Function to get the health rating based on score
+function Get-HealthRating {
+    param ([int]$HealthScore)
+    if ($HealthScore -ge 90) { return "Excellent" }
+    elseif ($HealthScore -ge 75) { return "Good" }
+    elseif ($HealthScore -ge 50) { return "Average" }
+    else { return "Poor" }
 }
 
 # Function to save the report
@@ -150,6 +170,8 @@ function Save-Report {
 function Run-SystemHealthCheck {
     $report = @()
     $report += "======== System Health Check ========"
+
+    # System Information
     $report += "`n[System Information]"
     $report += (Get-SystemInfo | Format-List | Out-String)
 
@@ -177,18 +199,12 @@ function Run-SystemHealthCheck {
         $report += "Internet connectivity: Not Connected"
     }
 
-    # Event Log Errors
-    $report += "`n[Recent Event Log Errors]"
-    $errors = Get-EventLogErrors
-    if ($errors) {
-        $report += ($errors | Format-Table -AutoSize | Out-String)
-    } else {
-        $report += "No recent critical errors found in event logs."
-    }
-
-    # Running Processes
-    $report += "`n[Top Running Processes by CPU Usage]"
-    $report += (Get-RunningProcesses | Format-Table -AutoSize | Out-String)
+    # Health Rating
+    $healthScore = Calculate-HealthScore
+    $healthRating = Get-HealthRating -HealthScore $healthScore
+    $report += "`n[System Health Rating]"
+    $report += "Health Score: $healthScore"
+    $report += "Health Rating: $healthRating"
 
     $report += "`n======== Health Check Complete ========"
 

@@ -1,6 +1,6 @@
-# Full System Health Check Script with Health Rating
-# Author: GPT-Generated
-# Description: Checks system health, calculates a health rating, and saves the report.
+# Full System Health Check Script with Health Rating in Filename
+# Author: Mohan Vanjare
+# Description: Checks system health, calculates a health rating, and saves the report with a detailed filename.
 
 # Function to get enhanced system information
 function Get-SystemInfo {
@@ -150,6 +150,16 @@ function Get-HealthRating {
     else { return "Poor" }
 }
 
+# Function to get the system's IPv4 address
+function Get-IPv4Address {
+    $ip = Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet", "Wi-Fi" -ErrorAction SilentlyContinue
+    if ($ip) {
+        return $ip.IPAddress
+    } else {
+        return "UnknownIP"
+    }
+}
+
 # Function to save the report
 function Save-Report {
     param (
@@ -208,10 +218,10 @@ function Run-SystemHealthCheck {
 
     $report += "`n======== Health Check Complete ========"
 
-    # Get device name and IP for the filename
+    # Get device name, IP, and health rating for the filename
     $deviceName = $env:COMPUTERNAME
     $ipAddress = Get-IPv4Address
-    $fileName = "${deviceName}_${ipAddress}.txt"
+    $fileName = "${deviceName}_${ipAddress}_${healthRating}.txt"
     $filePath = Join-Path -Path $env:USERPROFILE\Desktop -ChildPath $fileName
 
     # Save the report

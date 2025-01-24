@@ -1,6 +1,6 @@
-# Full System Health Check Script with RAM Speed (MHz) Included
-# Author: Mohan Vanjare
-# Description: Checks system health, calculates a health rating, and saves the report with system type and RAM speed.
+# Full System Health Check Script with Loading Progress
+# Author: GPT-Generated
+# Description: Displays progress percentage while performing health checks and saves the report.
 
 # Function to detect if the system is a desktop or laptop
 function Get-SystemType {
@@ -186,47 +186,63 @@ function Save-Report {
     }
 }
 
-# Function to run the full system health check
+# Function to run the full system health check with progress
 function Run-SystemHealthCheck {
+    $steps = 7  # Total number of steps in the process
+    $currentStep = 1
+
     $report = @()
     $report += "======== System Health Check ========"
 
     # System Information
+    Write-Progress -Activity "Running System Health Check" -Status "Collecting system information..." -PercentComplete (($currentStep / $steps) * 100)
     $systemInfo = Get-SystemInfo
     $systemType = $systemInfo.SystemType
     $report += "`n[System Information]"
     $report += ($systemInfo | Format-List | Out-String)
+    $currentStep++
 
     # Battery Health (only include for laptops)
     if ($systemType -eq "Laptop") {
+        Write-Progress -Activity "Running System Health Check" -Status "Checking battery health..." -PercentComplete (($currentStep / $steps) * 100)
         $report += "`n[Battery Health]"
         $report += (Get-BatteryHealth | Format-List | Out-String)
     } else {
         $report += "`n[Battery Health]"
         $report += "Battery health is not applicable for desktop systems."
     }
+    $currentStep++
 
     # CPU Usage
+    Write-Progress -Activity "Running System Health Check" -Status "Analyzing CPU usage..." -PercentComplete (($currentStep / $steps) * 100)
     $report += "`n[CPU Usage]"
     $report += (Get-CPUUsage | Format-Table -AutoSize | Out-String)
+    $currentStep++
 
     # Memory Usage
+    Write-Progress -Activity "Running System Health Check" -Status "Checking memory usage..." -PercentComplete (($currentStep / $steps) * 100)
     $report += "`n[Memory Usage]"
     $report += (Get-MemoryUsage | Format-Table -AutoSize | Out-String)
+    $currentStep++
 
     # Disk Space
+    Write-Progress -Activity "Running System Health Check" -Status "Analyzing disk space..." -PercentComplete (($currentStep / $steps) * 100)
     $report += "`n[Disk Space]"
     $report += (Get-DiskSpace | Format-Table -AutoSize | Out-String)
+    $currentStep++
 
     # Network Connectivity
+    Write-Progress -Activity "Running System Health Check" -Status "Testing network connectivity..." -PercentComplete (($currentStep / $steps) * 100)
     $report += "`n[Network Connectivity]"
     if (Test-Network) {
         $report += "Internet connectivity: Connected"
     } else {
         $report += "Internet connectivity: Not Connected"
     }
+    $currentStep++
 
     # Health Rating
+    Write-Progress -Activity "Running System Health Check" -Status "Calculating system health rating..." -PercentComplete (($currentStep / $steps) * 100)
     $healthScore = Calculate-HealthScore
     $healthRating = Get-HealthRating -HealthScore $healthScore
     $report += "`n[System Health Rating]"
@@ -244,6 +260,7 @@ function Run-SystemHealthCheck {
     # Save the report
     Save-Report -Content ($report -join "`n") -FilePath $filePath
 
+    Write-Progress -Activity "Running System Health Check" -Status "Complete" -PercentComplete 100 -Completed
     Write-Output "Health check complete. The report has been saved to: $filePath"
 }
 

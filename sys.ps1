@@ -1,5 +1,5 @@
 # Full System Health Check Script with Loading Progress
-# Author: GPT-Generated
+# Author:Mohan Vanjare
 # Description: Displays progress percentage while performing health checks and saves the report.
 
 # Function to detect if the system is a desktop or laptop

@@ -1,5 +1,5 @@
 # Full System Health Check Script with RAM Speed (MHz) Included
-# Author: GPT-Generated
+# Author: Mohan Vanjare
 # Description: Checks system health, calculates a health rating, and saves the report with system type and RAM speed.
 
 # Function to detect if the system is a desktop or laptop

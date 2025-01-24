@@ -1,6 +1,6 @@
-# Full System Health Check Script with Enhanced System Information and Report Download
+# Full System Health Check Script with Battery Health
 # Author: GPT-Generated
-# Description: Checks system health, provides a detailed report, and saves it to a file.
+# Description: Checks system health, including battery health, and saves a detailed report.
 
 # Function to get enhanced system information
 function Get-SystemInfo {
@@ -34,6 +34,47 @@ function Get-SystemInfo {
         BootTime        = $os.LastBootUpTime
         NumberOfDisks   = ($disks | Measure-Object).Count
         DiskTypes       = ($disks | Select-Object MediaType -Unique | ForEach-Object { $_.MediaType -join ", " }) -join ", "
+    }
+}
+
+# Function to get battery health information
+function Get-BatteryHealth {
+    try {
+        $battery = Get-CimInstance Win32_Battery
+        if ($battery) {
+            [PSCustomObject]@{
+                BatteryStatus         = Switch ($battery.BatteryStatus) {
+                    1 { "Discharging" }
+                    2 { "Connected, Charging" }
+                    3 { "Fully Charged" }
+                    4 { "Low" }
+                    5 { "Critical" }
+                    6 { "Charging and High" }
+                    7 { "Charging and Low" }
+                    8 { "Charging and Critical" }
+                    9 { "Undefined" }
+                    10 { "Partially Charged" }
+                    Default { "Unknown" }
+                }
+                EstimatedChargeRemaining = "$($battery.EstimatedChargeRemaining) %"
+                EstimatedRunTimeMinutes  = "$($battery.EstimatedRunTime) minutes"
+                DesignVoltage            = "$($battery.DesignVoltage / 1000) V"
+            }
+        } else {
+            [PSCustomObject]@{
+                BatteryStatus         = "No battery detected"
+                EstimatedChargeRemaining = "N/A"
+                EstimatedRunTimeMinutes  = "N/A"
+                DesignVoltage            = "N/A"
+            }
+        }
+    } catch {
+        [PSCustomObject]@{
+            BatteryStatus         = "Error retrieving battery information"
+            EstimatedChargeRemaining = "N/A"
+            EstimatedRunTimeMinutes  = "N/A"
+            DesignVoltage            = "N/A"
+        }
     }
 }
 
@@ -101,6 +142,10 @@ function Run-SystemHealthCheck {
     $report += "======== System Health Check ========"
     $report += "`n[System Information]"
     $report += (Get-SystemInfo | Format-List | Out-String)
+
+    # Battery Health
+    $report += "`n[Battery Health]"
+    $report += (Get-BatteryHealth | Format-List | Out-String)
 
     # CPU Usage
     $report += "`n[CPU Usage]"

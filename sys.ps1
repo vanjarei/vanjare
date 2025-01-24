@@ -1,12 +1,25 @@
-# Full System Health Check Script with System Info and Report Download
+# Full System Health Check Script with Enhanced System Information and Report Download
 # Author: GPT-Generated
 # Description: Checks system health, provides a detailed report, and saves it to a file.
 
-# Function to get system information
+# Function to get enhanced system information
 function Get-SystemInfo {
     $os = Get-CimInstance Win32_OperatingSystem
     $bios = Get-CimInstance Win32_BIOS
     $cpu = Get-CimInstance Win32_Processor
+    $memory = Get-CimInstance Win32_PhysicalMemory
+    $disks = Get-CimInstance Win32_DiskDrive
+
+    # Calculate total RAM in GB
+    $totalRAM = [math]::round(($memory.Capacity | Measure-Object -Sum).Sum / 1GB, 2)
+    $ramType = Switch ($memory.MemoryType) {
+        20 { "DDR" }
+        21 { "DDR2" }
+        24 { "DDR3" }
+        26 { "DDR4" }
+        Default { "Unknown" }
+    }
+
     [PSCustomObject]@{
         ComputerName    = $env:COMPUTERNAME
         OS              = $os.Caption
@@ -14,8 +27,13 @@ function Get-SystemInfo {
         Manufacturer    = $os.Manufacturer
         BIOSVersion     = $bios.SMBIOSBIOSVersion
         Processor       = $cpu.Name
+        CPUCores        = $cpu.NumberOfCores
+        TotalRAMGB      = "$totalRAM GB"
+        RAMType         = $ramType
         Architecture    = $os.OSArchitecture
         BootTime        = $os.LastBootUpTime
+        NumberOfDisks   = ($disks | Measure-Object).Count
+        DiskTypes       = ($disks | Select-Object MediaType -Unique | ForEach-Object { $_.MediaType -join ", " }) -join ", "
     }
 }
 

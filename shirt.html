@@ -68,7 +68,6 @@
 
     th {
       background-color: #f8f9fa;
-      cursor: pointer;
     }
 
     .summary {
@@ -86,11 +85,11 @@
       gap: 10px;
       margin-top: 20px;
     }
-    
+
     #whatsappShare {
       background-color: #25D366;
     }
-    
+
     #whatsappShare:hover {
       background-color: #1da851;
     }
@@ -187,7 +186,6 @@
     const totalSleevesDisplay = document.querySelector(".total-sleeves");
     const summaryTable = document.getElementById("summaryTable").querySelector("tbody");
     const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
-    const printToPdfButton = document.getElementById("printToPdf");
     const whatsappShareButton = document.getElementById("whatsappShare");
     const tShirtSizeSelect = document.getElementById("tShirtSize");
     const sizeSortSelect = document.getElementById("sizeSort");
@@ -243,7 +241,7 @@
       const size = document.getElementById("tShirtSize").value;
       const sleeveType = document.getElementById("sleeveType").value;
 
-      tShirtEntries.push({ playerName, tNo, size, sleeveType, partyPhotoURL: partyDetails.photoURL });
+      tShirtEntries.push({ playerName, tNo, size, sleeveType });
       totalTShirts++;
       if (sleeveType === "Half Sleeve") totalHalfSleeves++;
       else if (sleeveType === "Full Sleeve") totalFullSleeves++;
@@ -279,109 +277,32 @@
       totalSleevesDisplay.textContent = `Total Half Sleeve: ${totalHalfSleeves} | Total Full Sleeve: ${totalFullSleeves}`;
     }
 
-    sizeSortSelect.addEventListener("change", updateSummary);
-
-    // Print Functionality
-    printToPdfButton.addEventListener("click", () => {
-      const content = `
-        <html>
-          <head>
-            <title>T-Shirt Order Summary</title>
-            <style>
-              body { font-family: Arial, sans-serif; margin: 20px; }
-              .print-header { text-align: center; margin-bottom: 30px; }
-              .party-photo { 
-                max-width: 300px; 
-                max-height: 300px; 
-                display: block; 
-                margin: 20px auto; 
-                border: 2px solid #ddd;
-                padding: 5px;
-              }
-              .party-info { margin: 15px 0; }
-              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-              th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
-              th { background-color: #f8f9fa; }
-              .summary-stats { margin: 20px 0; font-size: 1.1em; }
-            </style>
-          </head>
-          <body>
-            <div class="print-header">
-              <h1>T-Shirt Order Summary</h1>
-              <div class="party-info">
-                <p><strong>Party Name:</strong> ${partyDetails.name}</p>
-                <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
-              </div>
-              ${partyDetails.photoURL ? `<img class="party-photo" src="${partyDetails.photoURL}" alt="Party Photo">` : ''}
-            </div>
-            
-            <div class="summary-stats">
-              <p>Total T-Shirts: ${totalTShirts}</p>
-              <p>Half Sleeves: ${totalHalfSleeves}</p>
-              <p>Full Sleeves: ${totalFullSleeves}</p>
-            </div>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Sr. No</th>
-                  <th>Player Name</th>
-                  <th>T-No</th>
-                  <th>Size</th>
-                  <th>Sleeve Type</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${tShirtEntries
-                  .map((entry, index) => `
-                    <tr>
-                      <td>${index + 1}</td>
-                      <td>${entry.playerName}</td>
-                      <td>${entry.tNo}</td>
-                      <td>${entry.size}</td>
-                      <td>${entry.sleeveType}</td>
-                    </tr>
-                  `)
-                  .join("")}
-              </tbody>
-            </table>
-          </body>
-        </html>
-      `;
-
-      const printWindow = window.open("", "_blank");
-      printWindow.document.write(content);
-      printWindow.document.close();
-      printWindow.print();
-    });
-
-    // WhatsApp Share Functionality
-    whatsappShareButton.addEventListener('click', () => {
+    whatsappShareButton.addEventListener("click", () => {
       let message = `*T-Shirt Order Summary*\n\n`;
       message += `*Party Name:* ${partyDetails.name}\n`;
       message += `*Delivery Date:* ${partyDetails.date}\n\n`;
-      message += `*Order Details*\n`;
-      
-      // Create table header
-      message += `Sr.No\tPlayer Name\tT-No\tSize\tSleeve Type\n`;
-      
-      // Add table rows
+      message += `*Order Details:*\n`;
+
+      // Table header
+      message += `| Sr.No | Player Name   | T-No   | Size | Sleeve Type |\n`;
+      message += `|-------|---------------|--------|------|-------------|\n`;
+
+      // Table rows
       tShirtEntries.forEach((entry, index) => {
-        message += `${index + 1}\t${entry.playerName}\t${entry.tNo}\t${entry.size}\t${entry.sleeveType}\n`;
+        message += `| ${String(index + 1).padEnd(5)} | ${entry.playerName.padEnd(13)} | ${entry.tNo.padEnd(6)} | ${entry.size.padEnd(4)} | ${entry.sleeveType.padEnd(11)} |\n`;
       });
-      
+
       // Add totals
       message += `\n*Total T-Shirts:* ${totalTShirts}\n`;
       message += `*Half Sleeves:* ${totalHalfSleeves}\n`;
       message += `*Full Sleeves:* ${totalFullSleeves}`;
 
-      // Encode message for URL
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-      
-      // Open WhatsApp window
-      window.open(whatsappUrl, '_blank');
+      window.open(whatsappUrl, "_blank");
     });
+
+    sizeSortSelect.addEventListener("change", updateSummary);
   </script>
 </body>
 </html>

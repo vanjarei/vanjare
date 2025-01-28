@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T-Shirt Order System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    input, select, button {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f8f9fa;
+    }
+
+    .summary {
+      margin-top: 20px;
+    }
+
+    .total-count {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>T-Shirt Order System</h1>
+
+  <!-- Form for entering Party Name and Delivery Date -->
+  <div class="container">
+    <h2>Party Details</h2>
+    <form id="partyDetailsForm">
+      <label for="partyName">Party Name:</label>
+      <input type="text" id="partyName" placeholder="Enter party name" required>
+
+      <label for="deliveryDate">Delivery Date:</label>
+      <input type="date" id="deliveryDate" required>
+
+      <label for="uploadImage">Upload Image:</label>
+      <input type="file" id="uploadImage" accept="image/*">
+
+      <img id="imagePreview" class="image-preview" src="" alt="Image Preview" style="display: none;">
+
+      <button type="submit">Save Party Details</button>
+    </form>
+  </div>
+
+  <!-- Form for T-Shirt Details -->
+  <div class="container">
+    <h2>T-Shirt Details</h2>
+    <form id="tShirtForm">
+      <label for="tNo">T-No:</label>
+      <input type="text" id="tNo" placeholder="Enter T-No" required>
+
+      <label for="tShirtSize">T-Shirt Size:</label>
+      <select id="tShirtSize" required>
+        <option value="" disabled selected>Select size</option>
+        <!-- Sizes from 28 to 48 -->
+        <option value="28">28</option>
+        <option value="30">30</option>
+        <option value="32">32</option>
+        <option value="34">34</option>
+        <option value="36">36</option>
+        <option value="38">38</option>
+        <option value="40">40</option>
+        <option value="42">42</option>
+        <option value="44">44</option>
+        <option value="46">46</option>
+        <option value="48">48</option>
+      </select>
+
+      <button type="submit">Add Entry</button>
+    </form>
+  </div>
+
+  <!-- Summary section -->
+  <div class="container">
+    <h2>Summary</h2>
+    <div id="partyDetailsDisplay"></div>
+    <div class="total-count">Total T-Shirts: 0</div>
+    <table id="summaryTable">
+      <thead>
+        <tr>
+          <th>Sr. No</th>
+          <th>T-No</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- T-Shirt Entries Will Appear Here -->
+      </tbody>
+    </table>
+    <button id="printToPdf">Print</button>
+  </div>
+
+  <script>
+    // References to DOM elements
+    const partyDetailsForm = document.getElementById("partyDetailsForm");
+    const tShirtForm = document.getElementById("tShirtForm");
+    const totalCountDisplay = document.querySelector(".total-count");
+    const summaryTable = document.getElementById("summaryTable").querySelector("tbody");
+    const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
+    const printToPdfButton = document.getElementById("printToPdf");
+    const uploadImage = document.getElementById("uploadImage");
+    const imagePreview = document.getElementById("imagePreview");
+
+    // Initialize data storage
+    let tShirtEntries = [];
+    let totalTShirts = 0;
+
+    // Store party details
+    let partyDetails = {
+      name: "",
+      date: "",
+      image: ""
+    };
+
+    // Handle image upload preview
+    uploadImage.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imagePreview.src = reader.result;
+          imagePreview.style.display = "block";
+          partyDetails.image = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle party details form submission
+    partyDetailsForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      partyDetails.name = document.getElementById("partyName").value.trim();
+      partyDetails.date = document.getElementById("deliveryDate").value;
+
+      // Display party details
+      partyDetailsDisplay.innerHTML = `
+        <p><strong>Party Name:</strong> ${partyDetails.name}</p>
+        <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+        ${partyDetails.image ? `<img src="${partyDetails.image}" class="image-preview">` : ""}
+      `;
+
+      partyDetailsForm.reset();
+      imagePreview.style.display = "none";
+    });
+
+    // Handle T-Shirt form submission
+    tShirtForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      // Get the T-No and size
+      const tNo = document.getElementById("tNo").value.trim();
+      const tShirtSize = document.getElementById("tShirtSize").value;
+
+      // Add entry to the table
+      tShirtEntries.push({ tNo, size: tShirtSize });
+      totalTShirts++;
+
+      // Update summary table
+      updateSummary();
+
+      // Reset the form
+      tShirtForm.reset();
+    });
+
+    // Function to update the summary table
+    function updateSummary() {
+      summaryTable.innerHTML = tShirtEntries
+        .map((entry, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${entry.tNo}</td>
+            <td>${entry.size}</td>
+          </tr>
+        `)
+        .join("");
+
+      totalCountDisplay.textContent = `Total T-Shirts: ${totalTShirts}`;
+    }
+
+    // Handle Print functionality
+    printToPdfButton.addEventListener("click", () => {
+      const content = `
+        <h1>Party Details</h1>
+        <p><strong>Party Name:</strong> ${partyDetails.name}</p>
+        <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+        ${partyDetails.image ? `<img src="${partyDetails.image}" style="max-width: 100%; max-height: 200px;">` : ""}
+        <h2>Summary</h2>
+        ${document.querySelector(".summary").innerHTML}
+      `;
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(`
+        <html>
+        <head><title>T-Shirt Order Summary</title></head>
+        <body>${content}</body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    });
+  </script>
+</body>
+</html>

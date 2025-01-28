@@ -4,17 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T-Shirt Order System</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
       background-color: #f4f4f9;
     }
+
     h1, h2 {
       text-align: center;
       color: #333;
     }
+
     .container {
       max-width: 800px;
       margin: 0 auto;
@@ -24,61 +25,80 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       margin-bottom: 20px;
     }
+
     form {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
+
     label {
       font-weight: bold;
     }
+
     input, select, button {
       padding: 10px;
       font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 5px;
     }
+
     button {
       background-color: #007bff;
       color: white;
       border: none;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #0056b3;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
+
     th, td {
       padding: 10px;
       border: 1px solid #ddd;
       text-align: center;
     }
+
     th {
       background-color: #f8f9fa;
     }
+
     .summary {
       margin-top: 20px;
     }
+
     .total-count {
       font-weight: bold;
       font-size: 1.2rem;
       margin-bottom: 10px;
     }
+
     .action-buttons {
       display: flex;
       gap: 10px;
       margin-top: 20px;
+    }
+
+    #whatsappShare {
+      background-color: #25D366;
+    }
+
+    #whatsappShare:hover {
+      background-color: #1da851;
     }
   </style>
 </head>
 <body>
   <h1>T-Shirt Order System</h1>
 
-  <!-- Form for Party Details -->
+  <!-- Form for entering Party Details -->
   <div class="container">
     <h2>Party Details</h2>
     <form id="partyDetailsForm">
@@ -87,6 +107,9 @@
 
       <label for="deliveryDate">Delivery Date:</label>
       <input type="date" id="deliveryDate" required>
+
+      <label for="photo">Photo:</label>
+      <input type="file" id="photo" accept="image/*" required>
 
       <button type="submit">Save Party Details</button>
     </form>
@@ -103,7 +126,9 @@
       <input type="text" id="tNo" placeholder="Enter T-No" required>
 
       <label for="tShirtSize">T-Shirt Size:</label>
-      <input type="number" id="tShirtSize" placeholder="Enter Size (e.g., 38)" required>
+      <select id="tShirtSize" required>
+        <option value="" disabled selected>Select size</option>
+      </select>
 
       <label for="sleeveType">Sleeve Type:</label>
       <select id="sleeveType" required>
@@ -116,14 +141,22 @@
     </form>
   </div>
 
-  <!-- Summary Section -->
+  <!-- Summary section -->
   <div class="container">
     <h2>Summary</h2>
     <div id="partyDetailsDisplay"></div>
 
     <div class="summary">
       <div class="total-count">Total T-Shirts: 0</div>
-      <div class="total-sleeves">Total Half Sleeve: 0 | Total Full Sleeve: 0</div>
+      <div class="total-sleeves">
+        Total Half Sleeve: 0 | Total Full Sleeve: 0
+      </div>
+
+      <label for="sizeSort">Sort Sizes:</label>
+      <select id="sizeSort">
+        <option value="lowToHigh">Low to High</option>
+        <option value="highToLow">High to Low</option>
+      </select>
 
       <table id="summaryTable">
         <thead>
@@ -136,13 +169,13 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Entries will be dynamically added here -->
+          <!-- T-Shirt Entries Will Appear Here -->
         </tbody>
       </table>
     </div>
-
     <div class="action-buttons">
-      <button id="downloadExcel">Download Excel</button>
+      <button id="printToPdf">Print</button>
+      <button id="whatsappShare">Share via WhatsApp</button>
     </div>
   </div>
 
@@ -153,7 +186,9 @@
     const totalSleevesDisplay = document.querySelector(".total-sleeves");
     const summaryTable = document.getElementById("summaryTable").querySelector("tbody");
     const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
-    const downloadExcelButton = document.getElementById("downloadExcel");
+    const whatsappShareButton = document.getElementById("whatsappShare");
+    const tShirtSizeSelect = document.getElementById("tShirtSize");
+    const sizeSortSelect = document.getElementById("sizeSort");
 
     let tShirtEntries = [];
     let totalHalfSleeves = 0;
@@ -162,29 +197,48 @@
 
     let partyDetails = {
       name: "",
-      date: ""
+      date: "",
+      photoURL: ""
     };
 
-    // Save Party Details
+    const generateSizes = () => {
+      const sizes = [];
+      for (let size = 20; size <= 58; size += 2) {
+        sizes.push(size);
+      }
+      return sizes;
+    };
+
+    generateSizes().forEach(size => {
+      const option = document.createElement("option");
+      option.value = size;
+      option.textContent = size;
+      tShirtSizeSelect.appendChild(option);
+    });
+
     partyDetailsForm.addEventListener("submit", (event) => {
       event.preventDefault();
       partyDetails.name = document.getElementById("partyName").value.trim();
       partyDetails.date = document.getElementById("deliveryDate").value;
+      const photoInput = document.getElementById("photo");
+      const photo = photoInput.files[0];
+      partyDetails.photoURL = URL.createObjectURL(photo);
 
       partyDetailsDisplay.innerHTML = `
         <p><strong>Party Name:</strong> ${partyDetails.name}</p>
         <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+        <img src="${partyDetails.photoURL}" alt="Party Photo" style="max-width: 100px; max-height: 100px; margin-top: 10px;"/>
       `;
 
       partyDetailsForm.reset();
     });
 
-    // Add T-Shirt Entry
     tShirtForm.addEventListener("submit", (event) => {
       event.preventDefault();
+
       const playerName = document.getElementById("playerName").value.trim();
       const tNo = document.getElementById("tNo").value.trim();
-      const size = document.getElementById("tShirtSize").value.trim();
+      const size = document.getElementById("tShirtSize").value;
       const sleeveType = document.getElementById("sleeveType").value;
 
       tShirtEntries.push({ playerName, tNo, size, sleeveType });
@@ -196,9 +250,18 @@
       tShirtForm.reset();
     });
 
-    // Update Summary Table
     function updateSummary() {
-      summaryTable.innerHTML = tShirtEntries
+      const sortOrder = sizeSortSelect.value;
+
+      const sortedEntries = [...tShirtEntries].sort((a, b) => {
+        if (sortOrder === "lowToHigh") {
+          return a.size - b.size;
+        } else {
+          return b.size - a.size;
+        }
+      });
+
+      summaryTable.innerHTML = sortedEntries
         .map((entry, index) => `
           <tr>
             <td>${index + 1}</td>
@@ -214,23 +277,32 @@
       totalSleevesDisplay.textContent = `Total Half Sleeve: ${totalHalfSleeves} | Total Full Sleeve: ${totalFullSleeves}`;
     }
 
-    // Download Excel File
-    downloadExcelButton.addEventListener("click", () => {
-      const worksheet = XLSX.utils.json_to_sheet(
-        tShirtEntries.map((entry, index) => ({
-          "Sr. No": index + 1,
-          "Player Name": entry.playerName,
-          "T-No": entry.tNo,
-          "Size": entry.size,
-          "Sleeve Type": entry.sleeveType
-        }))
-      );
+    whatsappShareButton.addEventListener("click", () => {
+      let message = `*T-Shirt Order Summary*\n\n`;
+      message += `*Party Name:* ${partyDetails.name}\n`;
+      message += `*Delivery Date:* ${partyDetails.date}\n\n`;
+      message += `*Order Details:*\n`;
 
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "T-Shirt Orders");
-      XLSX.writeFile(workbook, "T-Shirt_Orders.xlsx");
+      // Table header
+      message += `| Sr.No | Player Name   | T-No   | Size | Sleeve Type |\n`;
+      message += `|-------|---------------|--------|------|-------------|\n`;
+
+      // Table rows
+      tShirtEntries.forEach((entry, index) => {
+        message += `| ${String(index + 1).padEnd(5)} | ${entry.playerName.padEnd(13)} | ${entry.tNo.padEnd(6)} | ${entry.size.padEnd(4)} | ${entry.sleeveType.padEnd(11)} |\n`;
+      });
+
+      // Add totals
+      message += `\n*Total T-Shirts:* ${totalTShirts}\n`;
+      message += `*Half Sleeves:* ${totalHalfSleeves}\n`;
+      message += `*Full Sleeves:* ${totalFullSleeves}`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+      window.open(whatsappUrl, "_blank");
     });
+
+    sizeSortSelect.addEventListener("change", updateSummary);
   </script>
 </body>
-        </html>
-        
+</html>

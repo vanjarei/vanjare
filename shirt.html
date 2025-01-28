@@ -95,6 +95,9 @@
       <label for="deliveryDate">Delivery Date:</label>
       <input type="date" id="deliveryDate" required>
 
+      <label for="photo">Photo:</label>
+      <input type="file" id="photo" accept="image/*" required>
+
       <button type="submit">Save Party Details</button>
     </form>
   </div>
@@ -112,8 +115,6 @@
       <label for="tShirtSize">T-Shirt Size:</label>
       <select id="tShirtSize" required>
         <option value="" disabled selected>Select size</option>
-        <!-- Sizes from 20 to 56 -->
-        ${Array.from({ length: 37 }, (_, i) => 20 + i * 2).map(size => `<option value="${size}">${size}</option>`).join('')}
       </select>
 
       <label for="sleeveType">Sleeve Type:</label>
@@ -131,24 +132,34 @@
   <div class="container">
     <h2>Summary</h2>
     <div id="partyDetailsDisplay"></div>
-    <div class="total-count">Total T-Shirts: 0</div>
-    <div class="total-sleeves">
-      Total Half Sleeve: 0 | Total Full Sleeve: 0
+
+    <div class="summary">
+      <div class="total-count">Total T-Shirts: 0</div>
+      <div class="total-sleeves">
+        Total Half Sleeve: 0 | Total Full Sleeve: 0
+      </div>
+
+      <label for="sizeSort">Sort Sizes:</label>
+      <select id="sizeSort">
+        <option value="lowToHigh">Low to High</option>
+        <option value="highToLow">High to Low</option>
+      </select>
+
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>Sr. No</th>
+            <th>Player Name</th>
+            <th>T-No</th>
+            <th>Size</th>
+            <th>Sleeve Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- T-Shirt Entries Will Appear Here -->
+        </tbody>
+      </table>
     </div>
-    <table id="summaryTable">
-      <thead>
-        <tr>
-          <th>Sr. No</th>
-          <th>Player Name</th>
-          <th>T-No</th>
-          <th>Size</th>
-          <th>Sleeve Type</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- T-Shirt Entries Will Appear Here -->
-      </tbody>
-    </table>
     <button id="printToPdf">Print</button>
   </div>
 
@@ -161,6 +172,8 @@
     const summaryTable = document.getElementById("summaryTable").querySelector("tbody");
     const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
     const printToPdfButton = document.getElementById("printToPdf");
+    const tShirtSizeSelect = document.getElementById("tShirtSize");
+    const sizeSortSelect = document.getElementById("sizeSort");
 
     // Initialize data storage
     let tShirtEntries = [];
@@ -171,19 +184,41 @@
     // Store party details
     let partyDetails = {
       name: "",
-      date: ""
+      date: "",
+      photoURL: ""
     };
+
+    // Generate sizes from 20 to 58
+    const generateSizes = () => {
+      const sizes = [];
+      for (let size = 20; size <= 58; size += 2) {
+        sizes.push(size);
+      }
+      return sizes;
+    };
+
+    // Populate size options dynamically
+    generateSizes().forEach(size => {
+      const option = document.createElement("option");
+      option.value = size;
+      option.textContent = size;
+      tShirtSizeSelect.appendChild(option);
+    });
 
     // Handle party details form submission
     partyDetailsForm.addEventListener("submit", (event) => {
       event.preventDefault();
       partyDetails.name = document.getElementById("partyName").value.trim();
       partyDetails.date = document.getElementById("deliveryDate").value;
+      const photoInput = document.getElementById("photo");
+      const photo = photoInput.files[0];
+      partyDetails.photoURL = URL.createObjectURL(photo);
 
       // Display party details
       partyDetailsDisplay.innerHTML = `
         <p><strong>Party Name:</strong> ${partyDetails.name}</p>
         <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+        <img src="${partyDetails.photoURL}" alt="Party Photo" style="max-width: 100px; max-height: 100px; margin-top: 10px;"/>
       `;
 
       partyDetailsForm.reset();
@@ -198,7 +233,7 @@
       const size = document.getElementById("tShirtSize").value;
       const sleeveType = document.getElementById("sleeveType").value;
 
-      tShirtEntries.push({ playerName, tNo, size, sleeveType });
+      tShirtEntries.push({ playerName, tNo, size, sleeveType, partyPhotoURL: partyDetails.photoURL });
       totalTShirts++;
       if (sleeveType === "Half Sleeve") totalHalfSleeves++;
       else if (sleeveType === "Full Sleeve") totalFullSleeves++;
@@ -212,8 +247,19 @@
 
     // Update summary table
     function updateSummary() {
-      tShirtEntries.sort((a, b) => parseInt(a.size) - parseInt(b.size)); // Sort by size
-      summaryTable.innerHTML = tShirtEntries
+      const sortOrder = sizeSortSelect.value;
+
+      // Sort by size based on selected sort order
+      const sortedEntries = [...tShirtEntries].sort((a, b) => {
+        if (sortOrder === "lowToHigh") {
+          return a.size - b.size;
+        } else {
+          return b.size - a.size;
+        }
+      });
+
+      // Render sorted table
+      summaryTable.innerHTML = sortedEntries
         .map((entry, index) => `
           <tr>
             <td>${index + 1}</td>
@@ -229,6 +275,9 @@
       totalSleevesDisplay.textContent = `Total Half Sleeve: ${totalHalfSleeves} | Total Full Sleeve: ${totalFullSleeves}`;
     }
 
+    // Watch for size sort change to update summary
+    sizeSortSelect.addEventListener("change", updateSummary);
+
     // Print functionality
     printToPdfButton.addEventListener("click", () => {
       const content = `
@@ -236,6 +285,7 @@
         <div>
           <p><strong>Party Name:</strong> ${partyDetails.name}</p>
           <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+          <img src="${partyDetails.photoURL}" alt="Party Photo" style="max-width: 100px; max-height: 100px; margin-top: 10px;"/>
         </div>
         <h2>Summary</h2>
         <table border="1" style="width: 100%; border-collapse: collapse;">

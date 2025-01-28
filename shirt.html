@@ -80,6 +80,29 @@
       font-size: 1.2rem;
       margin-bottom: 10px;
     }
+
+    .party-photo {
+      display: block;
+      margin: 0 auto;
+      max-width: 200px;
+      max-height: 200px;
+    }
+
+    .whatsapp-share {
+      display: block;
+      background-color: #25D366;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 20px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .whatsapp-share:hover {
+      background-color: #128C7E;
+    }
   </style>
 </head>
 <body>
@@ -139,11 +162,7 @@
         Total Half Sleeve: 0 | Total Full Sleeve: 0
       </div>
 
-      <label for="sizeSort">Sort Sizes:</label>
-      <select id="sizeSort">
-        <option value="lowToHigh">Low to High</option>
-        <option value="highToLow">High to Low</option>
-      </select>
+      <button id="sortSizesButton">Sort Sizes (Low to High)</button>
 
       <table id="summaryTable">
         <thead>
@@ -161,6 +180,7 @@
       </table>
     </div>
     <button id="printToPdf">Print</button>
+    <a href="javascript:void(0);" class="whatsapp-share" id="whatsappShare">Share on WhatsApp</a>
   </div>
 
   <script>
@@ -173,7 +193,8 @@
     const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
     const printToPdfButton = document.getElementById("printToPdf");
     const tShirtSizeSelect = document.getElementById("tShirtSize");
-    const sizeSortSelect = document.getElementById("sizeSort");
+    const sortSizesButton = document.getElementById("sortSizesButton");
+    const whatsappShareButton = document.getElementById("whatsappShare");
 
     // Initialize data storage
     let tShirtEntries = [];
@@ -218,7 +239,7 @@
       partyDetailsDisplay.innerHTML = `
         <p><strong>Party Name:</strong> ${partyDetails.name}</p>
         <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
-        <img src="${partyDetails.photoURL}" alt="Party Photo" style="max-width: 100px; max-height: 100px; margin-top: 10px;"/>
+        <img src="${partyDetails.photoURL}" alt="Party Photo" class="party-photo"/>
       `;
 
       partyDetailsForm.reset();
@@ -233,7 +254,7 @@
       const size = document.getElementById("tShirtSize").value;
       const sleeveType = document.getElementById("sleeveType").value;
 
-      tShirtEntries.push({ playerName, tNo, size, sleeveType, partyPhotoURL: partyDetails.photoURL });
+      tShirtEntries.push({ playerName, tNo, size, sleeveType });
       totalTShirts++;
       if (sleeveType === "Half Sleeve") totalHalfSleeves++;
       else if (sleeveType === "Full Sleeve") totalFullSleeves++;
@@ -247,19 +268,7 @@
 
     // Update summary table
     function updateSummary() {
-      const sortOrder = sizeSortSelect.value;
-
-      // Sort by size based on selected sort order
-      const sortedEntries = [...tShirtEntries].sort((a, b) => {
-        if (sortOrder === "lowToHigh") {
-          return a.size - b.size;
-        } else {
-          return b.size - a.size;
-        }
-      });
-
-      // Render sorted table
-      summaryTable.innerHTML = sortedEntries
+      summaryTable.innerHTML = tShirtEntries
         .map((entry, index) => `
           <tr>
             <td>${index + 1}</td>
@@ -275,8 +284,11 @@
       totalSleevesDisplay.textContent = `Total Half Sleeve: ${totalHalfSleeves} | Total Full Sleeve: ${totalFullSleeves}`;
     }
 
-    // Watch for size sort change to update summary
-    sizeSortSelect.addEventListener("change", updateSummary);
+    // Handle sort sizes button click
+    sortSizesButton.addEventListener("click", () => {
+      tShirtEntries.sort((a, b) => a.size - b.size);
+      updateSummary();
+    });
 
     // Print functionality
     printToPdfButton.addEventListener("click", () => {
@@ -285,7 +297,7 @@
         <div>
           <p><strong>Party Name:</strong> ${partyDetails.name}</p>
           <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
-          <img src="${partyDetails.photoURL}" alt="Party Photo" style="max-width: 100px; max-height: 100px; margin-top: 10px;"/>
+          <img src="${partyDetails.photoURL}" alt="Party Photo" class="party-photo"/>
         </div>
         <h2>Summary</h2>
         <table border="1" style="width: 100%; border-collapse: collapse;">
@@ -320,6 +332,23 @@
       printWindow.document.write(content);
       printWindow.document.close();
       printWindow.print();
+    });
+
+    // WhatsApp share functionality
+    whatsappShareButton.addEventListener("click", () => {
+      const message = `
+        *T-Shirt Order Summary*%0A
+        Party Name: ${partyDetails.name}%0A
+        Delivery Date: ${partyDetails.date}%0A
+        Total T-Shirts: ${totalTShirts}%0A
+        Total Half Sleeve: ${totalHalfSleeves}%0A
+        Total Full Sleeve: ${totalFullSleeves}%0A
+        %0A
+        *Player Details*%0A
+        ${tShirtEntries.map(entry => `Player Name: ${entry.playerName} | T-No: ${entry.tNo} | Size: ${entry.size} | Sleeve Type: ${entry.sleeveType}`).join("%0A")}
+      `;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, "_blank");
     });
   </script>
 </body>

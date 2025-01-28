@@ -119,6 +119,9 @@
       <label for="tNo">T-No:</label>
       <input type="text" id="tNo" placeholder="Enter T-No" required>
 
+      <label for="playerName">Player Name:</label>
+      <input type="text" id="playerName" placeholder="Enter Player Name" required>
+
       <label for="tShirtSize">T-Shirt Size:</label>
       <select id="tShirtSize" required>
         <option value="" disabled selected>Select size</option>
@@ -150,6 +153,7 @@
         <tr>
           <th>Sr. No</th>
           <th>T-No</th>
+          <th>Player Name</th>
           <th>Size</th>
         </tr>
       </thead>
@@ -217,12 +221,13 @@
     tShirtForm.addEventListener("submit", (event) => {
       event.preventDefault();
 
-      // Get the T-No and size
+      // Get the T-No, Player Name, and size
       const tNo = document.getElementById("tNo").value.trim();
+      const playerName = document.getElementById("playerName").value.trim();
       const tShirtSize = document.getElementById("tShirtSize").value;
 
       // Add entry to the table
-      tShirtEntries.push({ tNo, size: tShirtSize });
+      tShirtEntries.push({ tNo, playerName, size: tShirtSize });
       totalTShirts++;
 
       // Update summary table
@@ -239,6 +244,7 @@
           <tr>
             <td>${index + 1}</td>
             <td>${entry.tNo}</td>
+            <td>${entry.playerName}</td>
             <td>${entry.size}</td>
           </tr>
         `)
@@ -250,20 +256,38 @@
     // Handle Print functionality
     printToPdfButton.addEventListener("click", () => {
       const content = `
-        <h1>Party Details</h1>
-        <p><strong>Party Name:</strong> ${partyDetails.name}</p>
-        <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
-        ${partyDetails.image ? `<img src="${partyDetails.image}" style="max-width: 100%; max-height: 200px;">` : ""}
+        <h1>T-Shirt Order Summary</h1>
+        <div>
+          <p><strong>Party Name:</strong> ${partyDetails.name}</p>
+          <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+          ${partyDetails.image ? `<img src="${partyDetails.image}" style="max-width: 100%; max-height: 200px;">` : ""}
+        </div>
         <h2>Summary</h2>
-        ${document.querySelector(".summary").innerHTML}
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th>Sr. No</th>
+              <th>T-No</th>
+              <th>Player Name</th>
+              <th>Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tShirtEntries
+              .map((entry, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${entry.tNo}</td>
+                  <td>${entry.playerName}</td>
+                  <td>${entry.size}</td>
+                </tr>
+              `)
+              .join("")}
+          </tbody>
+        </table>
       `;
       const printWindow = window.open("", "_blank");
-      printWindow.document.write(`
-        <html>
-        <head><title>T-Shirt Order Summary</title></head>
-        <body>${content}</body>
-        </html>
-      `);
+      printWindow.document.write(content);
       printWindow.document.close();
       printWindow.print();
     });

@@ -164,7 +164,6 @@
   </div>
 
   <script>
-    // References to DOM elements
     const partyDetailsForm = document.getElementById("partyDetailsForm");
     const tShirtForm = document.getElementById("tShirtForm");
     const totalCountDisplay = document.querySelector(".total-count");
@@ -175,20 +174,17 @@
     const tShirtSizeSelect = document.getElementById("tShirtSize");
     const sizeSortSelect = document.getElementById("sizeSort");
 
-    // Initialize data storage
     let tShirtEntries = [];
     let totalHalfSleeves = 0;
     let totalFullSleeves = 0;
     let totalTShirts = 0;
 
-    // Store party details
     let partyDetails = {
       name: "",
       date: "",
       photoURL: ""
     };
 
-    // Generate sizes from 20 to 58
     const generateSizes = () => {
       const sizes = [];
       for (let size = 20; size <= 58; size += 2) {
@@ -197,7 +193,6 @@
       return sizes;
     };
 
-    // Populate size options dynamically
     generateSizes().forEach(size => {
       const option = document.createElement("option");
       option.value = size;
@@ -205,7 +200,6 @@
       tShirtSizeSelect.appendChild(option);
     });
 
-    // Handle party details form submission
     partyDetailsForm.addEventListener("submit", (event) => {
       event.preventDefault();
       partyDetails.name = document.getElementById("partyName").value.trim();
@@ -214,7 +208,6 @@
       const photo = photoInput.files[0];
       partyDetails.photoURL = URL.createObjectURL(photo);
 
-      // Display party details
       partyDetailsDisplay.innerHTML = `
         <p><strong>Party Name:</strong> ${partyDetails.name}</p>
         <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
@@ -224,7 +217,6 @@
       partyDetailsForm.reset();
     });
 
-    // Handle T-Shirt form submission
     tShirtForm.addEventListener("submit", (event) => {
       event.preventDefault();
 
@@ -238,18 +230,13 @@
       if (sleeveType === "Half Sleeve") totalHalfSleeves++;
       else if (sleeveType === "Full Sleeve") totalFullSleeves++;
 
-      // Update summary table
       updateSummary();
-
-      // Reset the form
       tShirtForm.reset();
     });
 
-    // Update summary table
     function updateSummary() {
       const sortOrder = sizeSortSelect.value;
 
-      // Sort by size based on selected sort order
       const sortedEntries = [...tShirtEntries].sort((a, b) => {
         if (sortOrder === "lowToHigh") {
           return a.size - b.size;
@@ -258,7 +245,6 @@
         }
       });
 
-      // Render sorted table
       summaryTable.innerHTML = sortedEntries
         .map((entry, index) => `
           <tr>
@@ -275,47 +261,76 @@
       totalSleevesDisplay.textContent = `Total Half Sleeve: ${totalHalfSleeves} | Total Full Sleeve: ${totalFullSleeves}`;
     }
 
-    // Watch for size sort change to update summary
     sizeSortSelect.addEventListener("change", updateSummary);
 
-    // Print functionality
+    // Enhanced Print Functionality
     printToPdfButton.addEventListener("click", () => {
       const content = `
-        <h1>T-Shirt Order Summary</h1>
-        <div>
-          <p><strong>Party Name:</strong> ${partyDetails.name}</p>
-          <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
-          <img src="${partyDetails.photoURL}" alt="Party Photo" style="max-width: 100px; max-height: 100px; margin-top: 10px;"/>
-        </div>
-        <h2>Summary</h2>
-        <table border="1" style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr>
-              <th>Sr. No</th>
-              <th>Player Name</th>
-              <th>T-No</th>
-              <th>Size</th>
-              <th>Sleeve Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tShirtEntries
-              .map((entry, index) => `
+        <html>
+          <head>
+            <title>T-Shirt Order Summary</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .print-header { text-align: center; margin-bottom: 30px; }
+              .party-photo { 
+                max-width: 300px; 
+                max-height: 300px; 
+                display: block; 
+                margin: 20px auto; 
+                border: 2px solid #ddd;
+                padding: 5px;
+              }
+              .party-info { margin: 15px 0; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+              th { background-color: #f8f9fa; }
+              .summary-stats { margin: 20px 0; font-size: 1.1em; }
+            </style>
+          </head>
+          <body>
+            <div class="print-header">
+              <h1>T-Shirt Order Summary</h1>
+              <div class="party-info">
+                <p><strong>Party Name:</strong> ${partyDetails.name}</p>
+                <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+              </div>
+              ${partyDetails.photoURL ? `<img class="party-photo" src="${partyDetails.photoURL}" alt="Party Photo">` : ''}
+            </div>
+            
+            <div class="summary-stats">
+              <p>Total T-Shirts: ${totalTShirts}</p>
+              <p>Half Sleeves: ${totalHalfSleeves}</p>
+              <p>Full Sleeves: ${totalFullSleeves}</p>
+            </div>
+
+            <table>
+              <thead>
                 <tr>
-                  <td>${index + 1}</td>
-                  <td>${entry.playerName}</td>
-                  <td>${entry.tNo}</td>
-                  <td>${entry.size}</td>
-                  <td>${entry.sleeveType}</td>
+                  <th>Sr. No</th>
+                  <th>Player Name</th>
+                  <th>T-No</th>
+                  <th>Size</th>
+                  <th>Sleeve Type</th>
                 </tr>
-              `)
-              .join("")}
-          </tbody>
-        </table>
-        <p>Total T-Shirts: ${totalTShirts}</p>
-        <p>Total Half Sleeve: ${totalHalfSleeves}</p>
-        <p>Total Full Sleeve: ${totalFullSleeves}</p>
+              </thead>
+              <tbody>
+                ${tShirtEntries
+                  .map((entry, index) => `
+                    <tr>
+                      <td>${index + 1}</td>
+                      <td>${entry.playerName}</td>
+                      <td>${entry.tNo}</td>
+                      <td>${entry.size}</td>
+                      <td>${entry.sleeveType}</td>
+                    </tr>
+                  `)
+                  .join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
       `;
+
       const printWindow = window.open("", "_blank");
       printWindow.document.write(content);
       printWindow.document.close();

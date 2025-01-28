@@ -80,6 +80,20 @@
       font-size: 1.2rem;
       margin-bottom: 10px;
     }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    #whatsappShare {
+      background-color: #25D366;
+    }
+    
+    #whatsappShare:hover {
+      background-color: #1da851;
+    }
   </style>
 </head>
 <body>
@@ -160,7 +174,10 @@
         </tbody>
       </table>
     </div>
-    <button id="printToPdf">Print</button>
+    <div class="action-buttons">
+      <button id="printToPdf">Print</button>
+      <button id="whatsappShare">Share via WhatsApp</button>
+    </div>
   </div>
 
   <script>
@@ -171,6 +188,7 @@
     const summaryTable = document.getElementById("summaryTable").querySelector("tbody");
     const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
     const printToPdfButton = document.getElementById("printToPdf");
+    const whatsappShareButton = document.getElementById("whatsappShare");
     const tShirtSizeSelect = document.getElementById("tShirtSize");
     const sizeSortSelect = document.getElementById("sizeSort");
 
@@ -263,7 +281,7 @@
 
     sizeSortSelect.addEventListener("change", updateSummary);
 
-    // Enhanced Print Functionality
+    // Print Functionality
     printToPdfButton.addEventListener("click", () => {
       const content = `
         <html>
@@ -335,6 +353,34 @@
       printWindow.document.write(content);
       printWindow.document.close();
       printWindow.print();
+    });
+
+    // WhatsApp Share Functionality
+    whatsappShareButton.addEventListener('click', () => {
+      let message = `*T-Shirt Order Summary*\n\n`;
+      message += `*Party Name:* ${partyDetails.name}\n`;
+      message += `*Delivery Date:* ${partyDetails.date}\n\n`;
+      message += `*Order Details*\n`;
+      
+      // Create table header
+      message += `Sr.No\tPlayer Name\tT-No\tSize\tSleeve Type\n`;
+      
+      // Add table rows
+      tShirtEntries.forEach((entry, index) => {
+        message += `${index + 1}\t${entry.playerName}\t${entry.tNo}\t${entry.size}\t${entry.sleeveType}\n`;
+      });
+      
+      // Add totals
+      message += `\n*Total T-Shirts:* ${totalTShirts}\n`;
+      message += `*Half Sleeves:* ${totalHalfSleeves}\n`;
+      message += `*Full Sleeves:* ${totalFullSleeves}`;
+
+      // Encode message for URL
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+      
+      // Open WhatsApp window
+      window.open(whatsappUrl, '_blank');
     });
   </script>
 </body>

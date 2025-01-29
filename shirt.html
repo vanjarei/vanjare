@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>T-Shirt Order System</title>
   <style>
+    /* Previous CSS remains unchanged */
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
@@ -68,6 +69,7 @@
 
     th {
       background-color: #f8f9fa;
+      cursor: pointer;
     }
 
     .summary {
@@ -85,20 +87,20 @@
       gap: 10px;
       margin-top: 20px;
     }
-
+    
     #whatsappShare {
       background-color: #25D366;
     }
-
+    
     #whatsappShare:hover {
       background-color: #1da851;
     }
   </style>
 </head>
 <body>
+  <!-- Previous HTML structure remains unchanged -->
   <h1>T-Shirt Order System</h1>
 
-  <!-- Form for entering Party Details -->
   <div class="container">
     <h2>Party Details</h2>
     <form id="partyDetailsForm">
@@ -115,7 +117,6 @@
     </form>
   </div>
 
-  <!-- Form for T-Shirt Details -->
   <div class="container">
     <h2>T-Shirt Details</h2>
     <form id="tShirtForm">
@@ -141,7 +142,6 @@
     </form>
   </div>
 
-  <!-- Summary section -->
   <div class="container">
     <h2>Summary</h2>
     <div id="partyDetailsDisplay"></div>
@@ -169,7 +169,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- T-Shirt Entries Will Appear Here -->
+          <!-- Dynamic content -->
         </tbody>
       </table>
     </div>
@@ -180,12 +180,14 @@
   </div>
 
   <script>
+    // Previous JavaScript remains unchanged with updated WhatsApp share function
     const partyDetailsForm = document.getElementById("partyDetailsForm");
     const tShirtForm = document.getElementById("tShirtForm");
     const totalCountDisplay = document.querySelector(".total-count");
     const totalSleevesDisplay = document.querySelector(".total-sleeves");
     const summaryTable = document.getElementById("summaryTable").querySelector("tbody");
     const partyDetailsDisplay = document.getElementById("partyDetailsDisplay");
+    const printToPdfButton = document.getElementById("printToPdf");
     const whatsappShareButton = document.getElementById("whatsappShare");
     const tShirtSizeSelect = document.getElementById("tShirtSize");
     const sizeSortSelect = document.getElementById("sizeSort");
@@ -201,6 +203,7 @@
       photoURL: ""
     };
 
+    // Generate sizes 20-58
     const generateSizes = () => {
       const sizes = [];
       for (let size = 20; size <= 58; size += 2) {
@@ -216,6 +219,7 @@
       tShirtSizeSelect.appendChild(option);
     });
 
+    // Form event handlers
     partyDetailsForm.addEventListener("submit", (event) => {
       event.preventDefault();
       partyDetails.name = document.getElementById("partyName").value.trim();
@@ -243,66 +247,134 @@
 
       tShirtEntries.push({ playerName, tNo, size, sleeveType });
       totalTShirts++;
-      if (sleeveType === "Half Sleeve") totalHalfSleeves++;
-      else if (sleeveType === "Full Sleeve") totalFullSleeves++;
+      sleeveType === "Half Sleeve" ? totalHalfSleeves++ : totalFullSleeves++;
 
       updateSummary();
       tShirtForm.reset();
     });
 
+    // Update summary table
     function updateSummary() {
       const sortOrder = sizeSortSelect.value;
+      const sortedEntries = [...tShirtEntries].sort((a, b) => 
+        sortOrder === "lowToHigh" ? a.size - b.size : b.size - a.size
+      );
 
-      const sortedEntries = [...tShirtEntries].sort((a, b) => {
-        if (sortOrder === "lowToHigh") {
-          return a.size - b.size;
-        } else {
-          return b.size - a.size;
-        }
-      });
-
-      summaryTable.innerHTML = sortedEntries
-        .map((entry, index) => `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${entry.playerName}</td>
-            <td>${entry.tNo}</td>
-            <td>${entry.size}</td>
-            <td>${entry.sleeveType}</td>
-          </tr>
-        `)
-        .join("");
+      summaryTable.innerHTML = sortedEntries.map((entry, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${entry.playerName}</td>
+          <td>${entry.tNo}</td>
+          <td>${entry.size}</td>
+          <td>${entry.sleeveType}</td>
+        </tr>
+      `).join("");
 
       totalCountDisplay.textContent = `Total T-Shirts: ${totalTShirts}`;
       totalSleevesDisplay.textContent = `Total Half Sleeve: ${totalHalfSleeves} | Total Full Sleeve: ${totalFullSleeves}`;
     }
 
-    whatsappShareButton.addEventListener("click", () => {
-      let message = `*T-Shirt Order Summary*\n\n`;
+    sizeSortSelect.addEventListener("change", updateSummary);
+
+    // Print functionality
+    printToPdfButton.addEventListener("click", () => {
+      const printContent = `
+        <html>
+          <head>
+            <title>T-Shirt Order Summary</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              .print-header { text-align: center; margin-bottom: 30px; }
+              .party-photo { 
+                max-width: 300px; 
+                max-height: 300px; 
+                margin: 20px auto; 
+                display: block;
+                border: 2px solid #ddd;
+                padding: 5px;
+              }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+              th { background-color: #f8f9fa; }
+              .summary-stats { margin: 20px 0; font-size: 1.1em; }
+            </style>
+          </head>
+          <body>
+            <div class="print-header">
+              <h1>T-Shirt Order Summary</h1>
+              <p><strong>Party Name:</strong> ${partyDetails.name}</p>
+              <p><strong>Delivery Date:</strong> ${partyDetails.date}</p>
+              ${partyDetails.photoURL ? `<img class="party-photo" src="${partyDetails.photoURL}" alt="Party Photo">` : ''}
+            </div>
+            <div class="summary-stats">
+              <p>Total T-Shirts: ${totalTShirts}</p>
+              <p>Half Sleeves: ${totalHalfSleeves}</p>
+              <p>Full Sleeves: ${totalFullSleeves}</p>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Sr. No</th>
+                  <th>Player Name</th>
+                  <th>T-No</th>
+                  <th>Size</th>
+                  <th>Sleeve Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tShirtEntries.map((entry, index) => `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td>${entry.playerName}</td>
+                    <td>${entry.tNo}</td>
+                    <td>${entry.size}</td>
+                    <td>${entry.sleeveType}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    });
+
+    // Enhanced WhatsApp Share with Table Formatting
+    whatsappShareButton.addEventListener('click', () => {
+      let message = `*T-Shirt Order Summary* 🎽\n\n`;
       message += `*Party Name:* ${partyDetails.name}\n`;
       message += `*Delivery Date:* ${partyDetails.date}\n\n`;
-      message += `*Order Details:*\n`;
+      
+      // Table Header
+      message += "╔══════╦══════════════╦══════╦══════╦═════════════╗\n";
+      message += "║ Sr.No║ Player Name  ║ T-No ║ Size ║ Sleeve Type ║\n";
+      message += "╠══════╬══════════════╬══════╬══════╬═════════════╣\n";
 
-      // Table header
-      message += `| Sr.No | Player Name   | T-No   | Size | Sleeve Type |\n`;
-      message += `|-------|---------------|--------|------|-------------|\n`;
-
-      // Table rows
+      // Table Rows
       tShirtEntries.forEach((entry, index) => {
-        message += `| ${String(index + 1).padEnd(5)} | ${entry.playerName.padEnd(13)} | ${entry.tNo.padEnd(6)} | ${entry.size.padEnd(4)} | ${entry.sleeveType.padEnd(11)} |\n`;
+        message += `║ ${String(index + 1).padEnd(4)} ║ ` +
+                   `${entry.playerName.padEnd(12)} ║ ` +
+                   `${entry.tNo.padEnd(4)} ║ ` +
+                   `${String(entry.size).padEnd(4)} ║ ` +
+                   `${entry.sleeveType.padEnd(11)} ║\n`;
       });
 
-      // Add totals
-      message += `\n*Total T-Shirts:* ${totalTShirts}\n`;
+      // Table Footer
+      message += "╚══════╩══════════════╩══════╩══════╩═════════════╝\n\n";
+
+      // Summary
+      message += `*Total T-Shirts:* ${totalTShirts}\n`;
       message += `*Half Sleeves:* ${totalHalfSleeves}\n`;
       message += `*Full Sleeves:* ${totalFullSleeves}`;
 
+      // Encode and share
       const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-      window.open(whatsappUrl, "_blank");
+      window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
     });
-
-    sizeSortSelect.addEventListener("change", updateSummary);
   </script>
 </body>
 </html>
